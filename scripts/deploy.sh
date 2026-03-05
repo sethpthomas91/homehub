@@ -5,6 +5,7 @@
 # Usage: ./scripts/deploy.sh
 # ─────────────────────────────────────────────
 
+# ── Configure these for your environment ──────────────────
 PI_USER="sethpthomas91"
 PI_HOST="homehub.local"
 WEB_ROOT="/var/www/homehub"
