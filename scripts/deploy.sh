@@ -11,6 +11,7 @@ DASHBOARD_SRC="./dashboard/home-hub.html"
 DASHBOARD_DEST="/var/www/html/index.html"
 FONTS_CSS_SRC="./dashboard/fonts.css"
 FONTS_DIR_SRC="./dashboard/fonts"
+THREE_JS_SRC="./dashboard/three.min.js"
 
 echo "→ Deploying HomeHub dashboard to $PI_HOST..."
 
@@ -33,17 +34,18 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Copy fonts.css and fonts/ directory
+# Copy fonts.css, fonts/ directory, and three.min.js
 scp "$FONTS_CSS_SRC" "$PI_USER@$PI_HOST:/tmp/fonts.css"
 scp -r "$FONTS_DIR_SRC" "$PI_USER@$PI_HOST:/tmp/fonts"
+scp "$THREE_JS_SRC" "$PI_USER@$PI_HOST:/tmp/three.min.js"
 
 if [ $? -ne 0 ]; then
-  echo "✗ SCP of fonts failed."
+  echo "✗ SCP of assets failed."
   exit 1
 fi
 
 # Move everything into place with correct ownership
-ssh "$PI_USER@$PI_HOST" "sudo cp /tmp/home-hub.html $DASHBOARD_DEST && sudo cp /tmp/fonts.css /var/www/html/fonts.css && sudo cp -r /tmp/fonts /var/www/html/fonts && sudo chown -R www-data:www-data /var/www/html/fonts.css /var/www/html/fonts $DASHBOARD_DEST"
+ssh "$PI_USER@$PI_HOST" "sudo cp /tmp/home-hub.html $DASHBOARD_DEST && sudo cp /tmp/fonts.css /var/www/html/fonts.css && sudo cp -r /tmp/fonts /var/www/html/fonts && sudo cp /tmp/three.min.js /var/www/html/three.min.js && sudo chown -R www-data:www-data /var/www/html/fonts.css /var/www/html/fonts /var/www/html/three.min.js $DASHBOARD_DEST"
 
 if [ $? -ne 0 ]; then
   echo "✗ Remote copy failed."
