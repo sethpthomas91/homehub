@@ -1,0 +1,24 @@
+# ── Secrets & credentials ──────────────────────────────────
+secrets.yaml
+secrets.json
+.env
+*.token
+
+# ── Data & databases ────────────────────────────────────────
+*.csv
+*.db
+*.sqlite
+influxdb/
+data/
+backups/
+
+# ── Home Assistant ──────────────────────────────────────────
+home-assistant_v2.db
+home-assistant.log
+.storage/
+
+# ── OS & editor noise ───────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
