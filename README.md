@@ -39,5 +39,12 @@ See `docs/sensor-guide.md` for full build and flashing instructions.
 Open `dashboard/home-hub.html` in a browser on your local network.
 Configure your HA URL and token in `secrets.yaml` (used by `api.js`).
 
+## Deploy
+
+<!-- Edit the config block at the top of scripts/deploy.sh for your environment before first use -->
+```bash
+./scripts/deploy.sh
+```
+
 ## Privacy
 No data leaves the local network. See project docs for full containment rules.

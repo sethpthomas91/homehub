@@ -5,9 +5,12 @@
 # Usage: ./deploy.sh
 # ─────────────────────────────────────────────
 
+# ── Configure these for your environment ──────────────────
 PI_USER="sethpthomas91"
 PI_HOST="homehub.local"
-DASHBOARD_DEST="/var/www/html/index.html"
+WEB_ROOT="/var/www/html"
+DASHBOARD_DEST="$WEB_ROOT/index.html"
+# ──────────────────────────────────────────────────────────
 
 echo "→ Deploying HomeHub dashboard to $PI_HOST..."
 
@@ -38,10 +41,10 @@ fi
 # Move into place with correct ownership
 ssh "$PI_USER@$PI_HOST" "
   sudo cp /tmp/homehub-deploy/home-hub.html $DASHBOARD_DEST &&
-  sudo cp /tmp/homehub-deploy/fonts.css /var/www/html/fonts.css &&
-  sudo cp -r /tmp/homehub-deploy/fonts /var/www/html/fonts &&
-  sudo cp /tmp/homehub-deploy/three.min.js /var/www/html/three.min.js &&
-  sudo chown -R www-data:www-data $DASHBOARD_DEST /var/www/html/fonts.css /var/www/html/fonts /var/www/html/three.min.js
+  sudo cp /tmp/homehub-deploy/fonts.css $WEB_ROOT/fonts.css &&
+  sudo cp -r /tmp/homehub-deploy/fonts $WEB_ROOT/fonts &&
+  sudo cp /tmp/homehub-deploy/three.min.js $WEB_ROOT/three.min.js &&
+  sudo chown -R www-data:www-data $DASHBOARD_DEST $WEB_ROOT/fonts.css $WEB_ROOT/fonts $WEB_ROOT/three.min.js
 "
 
 if [ $? -ne 0 ]; then
