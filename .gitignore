@@ -22,3 +22,4 @@ home-assistant.log
 Thumbs.db
 .vscode/
 .idea/
+.claude/
