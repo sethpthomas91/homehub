@@ -60,7 +60,11 @@ This file defines how Claude Code operates in this repo. Follow these rules on e
 
 ```
 homehub/
-├── dashboard/          # Frontend — home-hub.html and api.js
+├── apps/
+│   ├── dashboard/      # Main dashboard — home-hub.html, fonts.css, three.min.js, fonts/
+│   └── games/          # Games hub — index.html, puzzles/
+├── nginx/              # Nginx server configs
+│   └── homehub.conf
 ├── esphome/            # ESPHome sensor configs (one .yaml per node)
 ├── docs/               # Build guides and documentation
 ├── scripts/            # Operational scripts (deploy, backup, etc.)
@@ -76,6 +80,7 @@ homehub/
 
 - **Pi hostname:** `homehub.local` · `192.168.0.74`
 - **Pi user:** `sethpthomas91`
+- **Web root:** `/var/www/homehub`
 - **Serving:** Nginx at `http://homehub.local`
 - **Deploy:** `./scripts/deploy.sh`
 - **Sensors:** ESP32 + DHT22 via ESPHome → Home Assistant
