@@ -1,6 +1,6 @@
 # HomeHub
 
-Self-hosted home environment monitoring. Runs on a Raspberry Pi. All data stays local.
+Self-hosted home environment monitoring and apps. Runs on a Raspberry Pi. All data stays local.
 
 **Measures:** Temperature · Humidity · CO₂ (planned)
 
@@ -8,19 +8,28 @@ Self-hosted home environment monitoring. Runs on a Raspberry Pi. All data stays 
 - **Home Assistant** + **ESPHome** — sensor collection
 - **InfluxDB** — time-series data storage
 - **Mosquitto** — MQTT broker
-- **dashboard/** — custom HTML dashboard (swappable)
+- **apps/dashboard/** — custom HTML dashboard
+- **apps/games/** — games hub (in progress)
 
 ## Repo Structure
 ```
 homehub/
-├── dashboard/
-│   ├── home-hub.html       # Main dashboard
-│   └── api.js              # HA API abstraction (in progress)
+├── apps/
+│   ├── dashboard/
+│   │   ├── home-hub.html       # Main dashboard
+│   │   ├── fonts.css           # Self-hosted font declarations
+│   │   ├── three.min.js        # Three.js (self-hosted)
+│   │   └── fonts/              # WOFF2 font files
+│   └── games/
+│       ├── index.html          # Games hub placeholder
+│       └── puzzles/            # Puzzle games (in progress)
+├── nginx/
+│   └── joviesoverlook.conf     # Nginx site config
 ├── esphome/
-│   └── *.yaml              # One config per sensor node
+│   └── *.yaml                  # One config per sensor node
 ├── docs/
-│   └── sensor-guide.md     # Hardware build guide
-├── secrets.example.yaml    # Copy to secrets.yaml, never commit secrets.yaml
+│   └── sensor-guide.md         # Hardware build guide
+├── secrets.example.yaml        # Copy to secrets.yaml, never commit secrets.yaml
 └── README.md
 ```
 
@@ -36,8 +45,16 @@ cp secrets.example.yaml secrets.yaml
 See `docs/sensor-guide.md` for full build and flashing instructions.
 
 ### Dashboard
-Open `dashboard/home-hub.html` in a browser on your local network.
-Configure your HA URL and token in `secrets.yaml` (used by `api.js`).
+Served by Nginx at `http://joviesoverlook.local`.
+Deploy with `./scripts/deploy.sh`.
+
+### First-time Pi setup
+Before the first deploy, update the Pi hostname:
+```bash
+sudo hostnamectl set-hostname joviesoverlook
+sudo nano /etc/hosts  # replace 'homehub' with 'joviesoverlook'
+sudo reboot
+```
 
 ## Privacy
 No data leaves the local network. See project docs for full containment rules.
