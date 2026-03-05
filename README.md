@@ -24,7 +24,7 @@ homehub/
 │       ├── index.html          # Games hub placeholder
 │       └── puzzles/            # Puzzle games (in progress)
 ├── nginx/
-│   └── joviesoverlook.conf     # Nginx site config
+│   └── homehub.conf            # Nginx site config
 ├── esphome/
 │   └── *.yaml                  # One config per sensor node
 ├── docs/
@@ -45,16 +45,8 @@ cp secrets.example.yaml secrets.yaml
 See `docs/sensor-guide.md` for full build and flashing instructions.
 
 ### Dashboard
-Served by Nginx at `http://joviesoverlook.local`.
+Served by Nginx at `http://homehub.local`.
 Deploy with `./scripts/deploy.sh`.
-
-### First-time Pi setup
-Before the first deploy, update the Pi hostname:
-```bash
-sudo hostnamectl set-hostname joviesoverlook
-sudo nano /etc/hosts  # replace 'homehub' with 'joviesoverlook'
-sudo reboot
-```
 
 ## Privacy
 No data leaves the local network. See project docs for full containment rules.

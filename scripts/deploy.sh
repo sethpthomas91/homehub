@@ -1,14 +1,14 @@
 #!/bin/bash
 # ─────────────────────────────────────────────
-# JoviesOverlook Deploy Script
+# HomeHub Deploy Script
 # Pushes all apps and nginx config to the Pi over SSH
 # Usage: ./scripts/deploy.sh
 # ─────────────────────────────────────────────
 
 PI_USER="sethpthomas91"
-PI_HOST="joviesoverlook.local"
-WEB_ROOT="/var/www/joviesoverlook"
-NGINX_CONF="nginx/joviesoverlook.conf"
+PI_HOST="homehub.local"
+WEB_ROOT="/var/www/homehub"
+NGINX_CONF="nginx/homehub.conf"
 
 echo "→ Deploying to $PI_HOST..."
 
@@ -32,11 +32,11 @@ if [ $? -ne 0 ]; then
 fi
 
 # Install nginx config and reload
-scp "$NGINX_CONF" "$PI_USER@$PI_HOST:/tmp/joviesoverlook.conf"
+scp "$NGINX_CONF" "$PI_USER@$PI_HOST:/tmp/homehub.conf"
 
 ssh "$PI_USER@$PI_HOST" "
-  sudo cp /tmp/joviesoverlook.conf /etc/nginx/sites-available/joviesoverlook.conf &&
-  sudo ln -sf /etc/nginx/sites-available/joviesoverlook.conf /etc/nginx/sites-enabled/joviesoverlook.conf &&
+  sudo cp /tmp/homehub.conf /etc/nginx/sites-available/homehub.conf &&
+  sudo ln -sf /etc/nginx/sites-available/homehub.conf /etc/nginx/sites-enabled/homehub.conf &&
   sudo chown -R www-data:www-data $WEB_ROOT &&
   sudo nginx -t && sudo systemctl reload nginx
 "
