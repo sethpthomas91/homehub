@@ -95,19 +95,6 @@
       border: 2px solid var(--accent);
     }
 
-    .cell.correct {
-      background: #0a1f0c;
-      border-color: #1a3d1e;
-    }
-
-    .cell.correct.selected {
-      border: 2px solid var(--accent3);
-    }
-
-    .cell.correct.highlighted {
-      background: #0c2210;
-    }
-
     .cell-num {
       position: absolute;
       top: 2px;
@@ -123,10 +110,6 @@
       font-size: clamp(1rem, 3.8vw, 1.5rem);
       color: var(--text);
       line-height: 1;
-    }
-
-    .cell.correct .cell-letter {
-      color: var(--accent3);
     }
 
     #clues {
@@ -162,8 +145,6 @@
 
     .clue-item.active { background: #0e1d2d; }
 
-    .clue-item.solved { color: var(--accent3); }
-
     .clue-num {
       font-family: 'Share Tech Mono', monospace;
       font-size: 0.7rem;
@@ -172,8 +153,6 @@
       flex-shrink: 0;
       padding-top: 0.05rem;
     }
-
-    .clue-item.solved .clue-num { color: var(--accent3); }
 
     .clue-text {
       font-size: 0.82rem;
@@ -392,7 +371,6 @@ let puzzle, cellNums, words, cellWordMap;
 let selectedCell = null;
 let direction = 'across';
 let state; // { puzzleIndex, solvedBy, letters }
-let solvedWords = new Set();
 let victoryTriggered = false;
 let lastKeydownWasLetter = false;
 
@@ -422,15 +400,8 @@ function loadState(puzzleIndex) {
 // ---------------------------------------------------------------------------
 // Word helpers
 // ---------------------------------------------------------------------------
-function isWordComplete(word) {
-  return word.cells.every((c, i) => state.letters[c] === word.answer[i]);
-}
-
-function recheckAllWords() {
-  words.forEach(w => {
-    if (isWordComplete(w)) solvedWords.add(w.key);
-    else solvedWords.delete(w.key);
-  });
+function isPuzzleSolved() {
+  return words.every(w => w.cells.every((c, i) => state.letters[c] === w.answer[i]));
 }
 
 function getActiveWordKey() {
@@ -513,9 +484,8 @@ function onClueClick(word) {
 function handleLetter(letter) {
   if (selectedCell === null) return;
   state.letters[selectedCell] = letter;
-  recheckAllWords();
   saveState();
-  if (words.every(w => solvedWords.has(w.key)) && !victoryTriggered) {
+  if (isPuzzleSolved() && !victoryTriggered) {
     victoryTriggered = true;
     render();
     setTimeout(showVictory, 350);
@@ -529,13 +499,11 @@ function handleBackspace() {
   if (selectedCell === null) return;
   if (state.letters[selectedCell]) {
     delete state.letters[selectedCell];
-    recheckAllWords();
     saveState();
   } else {
     retreatInWord();
     if (state.letters[selectedCell]) {
       delete state.letters[selectedCell];
-      recheckAllWords();
       saveState();
     }
   }
@@ -624,14 +592,8 @@ function renderGrid() {
     const letterEl = cell.querySelector('.cell-letter');
     letterEl.textContent = state.letters[i] || '';
 
-    cell.classList.remove('selected', 'highlighted', 'correct');
+    cell.classList.remove('selected', 'highlighted');
 
-    const ac = cellWordMap[i]?.across;
-    const dn = cellWordMap[i]?.down;
-    const wordKeys = [ac, dn].filter(Boolean);
-    if (wordKeys.length > 0 && wordKeys.every(k => solvedWords.has(k))) {
-      cell.classList.add('correct');
-    }
     if (i === selectedCell) {
       cell.classList.add('selected');
     } else if (activeWordCells.includes(i)) {
@@ -643,9 +605,7 @@ function renderGrid() {
 function renderClues() {
   const activeKey = getActiveWordKey();
   document.querySelectorAll('.clue-item').forEach(item => {
-    const k = item.dataset.key;
-    item.classList.toggle('active', k === activeKey);
-    item.classList.toggle('solved', solvedWords.has(k));
+    item.classList.toggle('active', item.dataset.key === activeKey);
   });
 }
 
@@ -709,9 +669,6 @@ function init() {
   puzzle = PUZZLES[puzzleIndex];
   cellNums = numberCells(puzzle.grid);
   ({ words, cellWordMap } = buildWords(puzzle.grid, cellNums));
-
-  // Recompute solved words from restored letters
-  recheckAllWords();
 
   buildGrid();
   buildClues();
