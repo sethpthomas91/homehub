@@ -25,7 +25,7 @@ if [ ! -f "./$NGINX_CONF" ]; then
 fi
 
 # Ensure web root exists on the Pi
-ssh "$PI_USER@$PI_HOST" "sudo mkdir -p $WEB_ROOT/apps && sudo chown $PI_USER $WEB_ROOT/apps"
+ssh "$PI_USER@$PI_HOST" "sudo mkdir -p $WEB_ROOT/apps && sudo chown -R $PI_USER $WEB_ROOT/apps"
 
 # Sync all apps to the Pi
 rsync -az --delete apps/ "$PI_USER@$PI_HOST:$WEB_ROOT/apps/"

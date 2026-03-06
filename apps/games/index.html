@@ -2,58 +2,706 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GAMES</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Crossword</title>
   <link rel="stylesheet" href="../dashboard/fonts.css">
   <style>
+    :root {
+      --bg: #0a0c0f;
+      --panel: #111620;
+      --border: #243040;
+      --accent: #00d4ff;
+      --accent3: #39ff14;
+      --text: #c8d8e8;
+      --dim: #7a9ab0;
+      --warn: #ffbe00;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #0a0c0f;
-      color: #c8d6e5;
+      background: var(--bg);
+      color: var(--text);
       font-family: 'Rajdhani', sans-serif;
-      font-weight: 300;
+      font-weight: 400;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+
+    header {
+      width: 100%;
+      max-width: 600px;
+      padding: 1.5rem 1rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    header h1 {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1rem;
+      letter-spacing: 0.25em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    #puzzle-date {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--dim);
+      letter-spacing: 0.15em;
+    }
+
+    #grid-wrap {
+      margin: 1.25rem 0 1rem;
+    }
+
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: 3px;
+      width: min(calc(100vw - 2rem), 320px);
+      height: min(calc(100vw - 2rem), 320px);
+    }
+
+    .cell {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      overflow: hidden;
+      min-width: 0;
+      min-height: 0;
+      transition: background 0.1s, border-color 0.1s;
+    }
+
+    .cell.black {
+      background: #060709;
+      border-color: #060709;
+      cursor: default;
+    }
+
+    .cell.highlighted {
+      background: #192130;
+      border-color: #2a3f55;
+    }
+
+    .cell.selected {
+      background: #0e1d2d;
+      border: 2px solid var(--accent);
+    }
+
+    .cell-num {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(0.42rem, 1.4vw, 0.55rem);
+      color: var(--dim);
+      line-height: 1;
+    }
+
+    .cell-letter {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(1rem, 3.8vw, 1.5rem);
+      color: var(--text);
+      line-height: 1;
+    }
+
+    #clues {
+      width: min(calc(100vw - 2rem), 560px);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .clue-panel h2 {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .clue-item {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.3rem 0.4rem;
+      border-radius: 2px;
+      cursor: pointer;
+      margin-bottom: 0.1rem;
+      transition: background 0.1s;
+    }
+
+    .clue-item:hover { background: #192130; }
+
+    .clue-item.active { background: #0e1d2d; }
+
+    .clue-num {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--dim);
+      min-width: 1.1rem;
+      flex-shrink: 0;
+      padding-top: 0.05rem;
+    }
+
+    .clue-text {
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    #victory {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 12, 15, 0.93);
+      z-index: 100;
+      align-items: center;
       justify-content: center;
     }
 
-    h1 {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 4rem;
-      letter-spacing: 0.3em;
-      color: #e0eaf4;
-      text-transform: uppercase;
+    #victory.show { display: flex; }
+
+    .victory-box {
+      background: var(--panel);
+      border: 1px solid var(--accent3);
+      padding: 2.5rem 2rem;
+      max-width: 340px;
+      width: calc(100vw - 2.5rem);
+      text-align: center;
     }
 
-    p {
-      margin-top: 0.75rem;
-      font-size: 1.25rem;
-      letter-spacing: 0.15em;
-      color: #5a7a9a;
-      text-transform: uppercase;
-    }
-
-    a {
-      margin-top: 2.5rem;
+    .v-date {
       font-family: 'Share Tech Mono', monospace;
-      font-size: 0.85rem;
+      font-size: 0.65rem;
+      color: var(--dim);
       letter-spacing: 0.2em;
-      color: #3a5f7a;
-      text-decoration: none;
-      text-transform: uppercase;
+      margin-bottom: 0.6rem;
     }
 
-    a:hover {
-      color: #c8d6e5;
+    .v-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      margin-bottom: 1.25rem;
+    }
+
+    .v-msg {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 1.75rem;
+    }
+
+    .victory-box button {
+      background: transparent;
+      border: 1px solid var(--accent3);
+      color: var(--accent3);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      padding: 0.6rem 1.5rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background 0.15s;
+    }
+
+    .victory-box button:hover {
+      background: rgba(57, 255, 20, 0.08);
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 1rem;
+    }
+
+    footer a {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--dim);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+    }
+
+    footer a:hover { color: var(--text); }
+
+    #mobile-input {
+      position: fixed;
+      opacity: 0;
+      pointer-events: none;
+      top: 0;
+      left: 0;
+      width: 1px;
+      height: 1px;
+      font-size: 16px;
+    }
+
+    @media (max-width: 380px) {
+      #clues { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <h1>GAMES</h1>
-  <p>coming soon</p>
-  <a href="/">← back</a>
+
+<header>
+  <h1 id="puzzle-title">Crossword</h1>
+  <div id="puzzle-date"></div>
+</header>
+
+<div id="grid-wrap">
+  <div id="grid"></div>
+</div>
+
+<div id="clues">
+  <div class="clue-panel">
+    <h2>Across</h2>
+    <div id="clues-across"></div>
+  </div>
+  <div class="clue-panel">
+    <h2>Down</h2>
+    <div id="clues-down"></div>
+  </div>
+</div>
+
+<div id="victory">
+  <div class="victory-box">
+    <div class="v-date" id="v-date"></div>
+    <div class="v-title" id="v-title"></div>
+    <div class="v-msg">Puzzle complete. Well done.</div>
+    <button id="v-dismiss">Review grid</button>
+  </div>
+</div>
+
+<footer><a href="/">← homehub.local</a></footer>
+
+<input id="mobile-input" type="text" autocomplete="off" autocorrect="off"
+       autocapitalize="characters" spellcheck="false" inputmode="text">
+
+<script src="puzzles/puzzles.js"></script>
+<script>
+// ---------------------------------------------------------------------------
+// Numbering — exact algorithm from spec
+// ---------------------------------------------------------------------------
+function numberCells(grid) {
+  const nums = {};
+  let n = 1;
+  for (let i = 0; i < 25; i++) {
+    if (grid[i] === '#') continue;
+    const row = Math.floor(i / 5), col = i % 5;
+    const startsAcross = (col === 0 || grid[i - 1] === '#') && col < 4 && grid[i + 1] !== '#';
+    const startsDown   = (row === 0 || grid[i - 5] === '#') && row < 4 && grid[i + 5] !== '#';
+    if (startsAcross || startsDown) nums[i] = n++;
+  }
+  return nums;
+}
+
+// ---------------------------------------------------------------------------
+// Build word list and cell→word map from numbered cells
+// ---------------------------------------------------------------------------
+function buildWords(grid, cellNums) {
+  const words = [];
+  const cellWordMap = {};
+  for (let i = 0; i < 25; i++) {
+    if (grid[i] !== '#') cellWordMap[i] = {};
+  }
+
+  for (const [idxStr, num] of Object.entries(cellNums)) {
+    const idx = parseInt(idxStr, 10);
+    const row = Math.floor(idx / 5);
+    const col = idx % 5;
+
+    const startsAcross = (col === 0 || grid[idx - 1] === '#') && col < 4 && grid[idx + 1] !== '#';
+    if (startsAcross) {
+      const cells = [];
+      for (let j = idx; j < 25 && Math.floor(j / 5) === row && grid[j] !== '#'; j++) {
+        cells.push(j);
+      }
+      const key = `across-${num}`;
+      words.push({ key, dir: 'across', num, cells, answer: cells.map(c => grid[c]).join('') });
+      cells.forEach(c => { cellWordMap[c].across = key; });
+    }
+
+    const startsDown = (row === 0 || grid[idx - 5] === '#') && row < 4 && grid[idx + 5] !== '#';
+    if (startsDown) {
+      const cells = [];
+      for (let j = idx; j < 25 && grid[j] !== '#'; j += 5) {
+        cells.push(j);
+      }
+      const key = `down-${num}`;
+      words.push({ key, dir: 'down', num, cells, answer: cells.map(c => grid[c]).join('') });
+      cells.forEach(c => { cellWordMap[c].down = key; });
+    }
+  }
+
+  return { words, cellWordMap };
+}
+
+// ---------------------------------------------------------------------------
+// Date helpers
+// ---------------------------------------------------------------------------
+function getDateString() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function getPuzzleIndex() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / 86400000);
+  return dayOfYear % PUZZLES.length;
+}
+
+// ---------------------------------------------------------------------------
+// App state
+// ---------------------------------------------------------------------------
+let puzzle, cellNums, words, cellWordMap;
+let selectedCell = null;
+let direction = 'across';
+let state; // { puzzleIndex, solvedBy, letters }
+let victoryTriggered = false;
+let lastKeydownWasLetter = false;
+
+// ---------------------------------------------------------------------------
+// localStorage
+// ---------------------------------------------------------------------------
+function saveState() {
+  const key = `cw-${getDateString()}`;
+  localStorage.setItem(key, JSON.stringify({
+    puzzleIndex: state.puzzleIndex,
+    solvedBy: state.solvedBy,
+    letters: state.letters
+  }));
+}
+
+function loadState(puzzleIndex) {
+  const key = `cw-${getDateString()}`;
+  try {
+    const data = JSON.parse(localStorage.getItem(key));
+    if (data && data.puzzleIndex === puzzleIndex) {
+      return { puzzleIndex, solvedBy: data.solvedBy || null, letters: data.letters || {} };
+    }
+  } catch (_) {}
+  return { puzzleIndex, solvedBy: null, letters: {} };
+}
+
+// ---------------------------------------------------------------------------
+// Word helpers
+// ---------------------------------------------------------------------------
+function isPuzzleSolved() {
+  return words.every(w => w.cells.every((c, i) => state.letters[c] === w.answer[i]));
+}
+
+function getActiveWordKey() {
+  if (selectedCell === null) return null;
+  return cellWordMap[selectedCell]?.[direction] || null;
+}
+
+function getActiveWordCells() {
+  const key = getActiveWordKey();
+  if (!key) return [];
+  return words.find(w => w.key === key)?.cells || [];
+}
+
+// ---------------------------------------------------------------------------
+// Navigation helpers
+// ---------------------------------------------------------------------------
+function advanceInWord() {
+  const key = getActiveWordKey();
+  if (!key) return;
+  const word = words.find(w => w.key === key);
+  if (!word) return;
+  const idx = word.cells.indexOf(selectedCell);
+  if (idx < word.cells.length - 1) selectedCell = word.cells[idx + 1];
+}
+
+function retreatInWord() {
+  const key = getActiveWordKey();
+  if (!key) return;
+  const word = words.find(w => w.key === key);
+  if (!word) return;
+  const idx = word.cells.indexOf(selectedCell);
+  if (idx > 0) selectedCell = word.cells[idx - 1];
+}
+
+function nextWord(reverse) {
+  if (!words.length) return;
+  const current = getActiveWordKey();
+  let idx = words.findIndex(w => w.key === current);
+  if (idx === -1) idx = 0;
+  if (reverse) idx = idx <= 0 ? words.length - 1 : idx - 1;
+  else idx = idx >= words.length - 1 ? 0 : idx + 1;
+  const next = words[idx];
+  direction = next.dir;
+  const firstEmpty = next.cells.find(c => !state.letters[c]);
+  selectedCell = firstEmpty !== undefined ? firstEmpty : next.cells[0];
+}
+
+function adjustDirectionForCell(i) {
+  const hasAcross = !!cellWordMap[i]?.across;
+  const hasDown = !!cellWordMap[i]?.down;
+  if (direction === 'across' && !hasAcross && hasDown) direction = 'down';
+  if (direction === 'down' && !hasDown && hasAcross) direction = 'across';
+}
+
+// ---------------------------------------------------------------------------
+// Handlers
+// ---------------------------------------------------------------------------
+function onCellClick(i) {
+  if (puzzle.grid[i] === '#') return;
+  if (i === selectedCell) {
+    const hasAcross = !!cellWordMap[i]?.across;
+    const hasDown = !!cellWordMap[i]?.down;
+    if (hasAcross && hasDown) direction = direction === 'across' ? 'down' : 'across';
+  } else {
+    selectedCell = i;
+    adjustDirectionForCell(i);
+  }
+  render();
+  focusMobileInput();
+}
+
+function onClueClick(word) {
+  direction = word.dir;
+  const firstEmpty = word.cells.find(c => !state.letters[c]);
+  selectedCell = firstEmpty !== undefined ? firstEmpty : word.cells[0];
+  render();
+  focusMobileInput();
+}
+
+function handleLetter(letter) {
+  if (selectedCell === null) return;
+  state.letters[selectedCell] = letter;
+  saveState();
+  if (isPuzzleSolved() && !victoryTriggered) {
+    victoryTriggered = true;
+    render();
+    setTimeout(showVictory, 350);
+    return;
+  }
+  advanceInWord();
+  render();
+}
+
+function handleBackspace() {
+  if (selectedCell === null) return;
+  if (state.letters[selectedCell]) {
+    delete state.letters[selectedCell];
+    saveState();
+  } else {
+    retreatInWord();
+    if (state.letters[selectedCell]) {
+      delete state.letters[selectedCell];
+      saveState();
+    }
+  }
+  render();
+}
+
+function handleArrow(key) {
+  if (selectedCell === null) return;
+  const row = Math.floor(selectedCell / 5);
+  const col = selectedCell % 5;
+  let nr = row, nc = col;
+  if (key === 'ArrowRight') { nc++; direction = 'across'; }
+  else if (key === 'ArrowLeft') { nc--; direction = 'across'; }
+  else if (key === 'ArrowDown') { nr++; direction = 'down'; }
+  else if (key === 'ArrowUp') { nr--; direction = 'down'; }
+  if (nr < 0 || nr >= 5 || nc < 0 || nc >= 5) return;
+  const next = nr * 5 + nc;
+  if (puzzle.grid[next] === '#') return;
+  selectedCell = next;
+  render();
+}
+
+function onKeyDown(e) {
+  if (selectedCell === null) return;
+  const { key } = e;
+  lastKeydownWasLetter = false;
+
+  if (key === 'ArrowRight' || key === 'ArrowLeft' || key === 'ArrowDown' || key === 'ArrowUp') {
+    e.preventDefault();
+    handleArrow(key);
+  } else if (key === 'Tab') {
+    e.preventDefault();
+    nextWord(e.shiftKey);
+    render();
+  } else if (key === 'Backspace') {
+    e.preventDefault();
+    handleBackspace();
+  } else if (key.length === 1 && /[a-zA-Z]/.test(key)) {
+    e.preventDefault();
+    lastKeydownWasLetter = true;
+    handleLetter(key.toUpperCase());
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Mobile input
+// ---------------------------------------------------------------------------
+function focusMobileInput() {
+  document.getElementById('mobile-input').focus();
+}
+
+function setupMobileInput() {
+  const input = document.getElementById('mobile-input');
+  // Arrows, backspace, tab from mobile keyboard
+  input.addEventListener('keydown', onKeyDown);
+  // Letter input from mobile IME (keydown may not fire for letters)
+  input.addEventListener('input', () => {
+    const val = input.value;
+    input.value = '';
+    if (!val || selectedCell === null) return;
+    if (lastKeydownWasLetter) { lastKeydownWasLetter = false; return; }
+    const letter = val.toUpperCase().replace(/[^A-Z]/g, '');
+    if (letter) handleLetter(letter[letter.length - 1]);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Victory
+// ---------------------------------------------------------------------------
+function showVictory() {
+  const dateStr = getDateString();
+  document.getElementById('v-date').textContent = dateStr;
+  document.getElementById('v-title').textContent = puzzle.title;
+  document.getElementById('victory').classList.add('show');
+}
+
+// ---------------------------------------------------------------------------
+// Render
+// ---------------------------------------------------------------------------
+function renderGrid() {
+  const activeWordCells = getActiveWordCells();
+  for (let i = 0; i < 25; i++) {
+    const cell = document.querySelector(`.cell[data-idx="${i}"]`);
+    if (!cell || puzzle.grid[i] === '#') continue;
+
+    const letterEl = cell.querySelector('.cell-letter');
+    letterEl.textContent = state.letters[i] || '';
+
+    cell.classList.remove('selected', 'highlighted');
+
+    if (i === selectedCell) {
+      cell.classList.add('selected');
+    } else if (activeWordCells.includes(i)) {
+      cell.classList.add('highlighted');
+    }
+  }
+}
+
+function renderClues() {
+  const activeKey = getActiveWordKey();
+  document.querySelectorAll('.clue-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.key === activeKey);
+  });
+}
+
+function render() {
+  renderGrid();
+  renderClues();
+}
+
+// ---------------------------------------------------------------------------
+// DOM build
+// ---------------------------------------------------------------------------
+function buildGrid() {
+  const gridEl = document.getElementById('grid');
+  gridEl.innerHTML = '';
+  for (let i = 0; i < 25; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.dataset.idx = i;
+    if (puzzle.grid[i] === '#') {
+      cell.classList.add('black');
+    } else {
+      if (cellNums[i] != null) {
+        const numEl = document.createElement('span');
+        numEl.className = 'cell-num';
+        numEl.textContent = cellNums[i];
+        cell.appendChild(numEl);
+      }
+      const letterEl = document.createElement('span');
+      letterEl.className = 'cell-letter';
+      cell.appendChild(letterEl);
+      cell.addEventListener('click', () => onCellClick(i));
+    }
+    gridEl.appendChild(cell);
+  }
+}
+
+function buildClues() {
+  const acrossEl = document.getElementById('clues-across');
+  const downEl   = document.getElementById('clues-down');
+  acrossEl.innerHTML = '';
+  downEl.innerHTML = '';
+  words.forEach(word => {
+    const clueText = puzzle.clues[word.dir][word.num];
+    if (!clueText) return;
+    const item = document.createElement('div');
+    item.className = 'clue-item';
+    item.dataset.key = word.key;
+    item.innerHTML = `<span class="clue-num">${word.num}</span><span class="clue-text">${clueText}</span>`;
+    item.addEventListener('click', () => onClueClick(word));
+    (word.dir === 'across' ? acrossEl : downEl).appendChild(item);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Init
+// ---------------------------------------------------------------------------
+function init() {
+  const puzzleIndex = getPuzzleIndex();
+  state = loadState(puzzleIndex);
+
+  puzzle = PUZZLES[puzzleIndex];
+  cellNums = numberCells(puzzle.grid);
+  ({ words, cellWordMap } = buildWords(puzzle.grid, cellNums));
+
+  buildGrid();
+  buildClues();
+  setupMobileInput();
+
+  document.getElementById('puzzle-title').textContent = puzzle.title;
+  document.getElementById('puzzle-date').textContent = getDateString();
+  document.getElementById('v-dismiss').addEventListener('click', () => {
+    document.getElementById('victory').classList.remove('show');
+  });
+
+  // Desktop keyboard handler (skip if mobile-input is target to avoid double fire)
+  document.addEventListener('keydown', (e) => {
+    if (e.target === document.getElementById('mobile-input')) return;
+    onKeyDown(e);
+  });
+
+  // Select first empty cell in first word
+  const firstWord = words.find(w => w.dir === 'across') || words[0];
+  if (firstWord) {
+    direction = firstWord.dir;
+    const firstEmpty = firstWord.cells.find(c => !state.letters[c]);
+    selectedCell = firstEmpty !== undefined ? firstEmpty : firstWord.cells[0];
+  }
+
+  render();
+}
+
+init();
+</script>
 </body>
 </html>
