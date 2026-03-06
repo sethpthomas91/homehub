@@ -68,8 +68,14 @@ class PreviewHandler(http.server.BaseHTTPRequestHandler):
         else:
             target = root.resolve()
 
-        # Directory: fall back to index file
+        # Directory: redirect to trailing-slash URL, then fall back to index file
         if target.is_dir():
+            if not path.endswith('/'):
+                redir = path + '/'
+                self.send_response(301)
+                self.send_header('Location', redir)
+                self.end_headers()
+                return
             index_name = INDEX_FILES.get(root, "index.html")
             target = target / index_name
 
