@@ -1,5 +1,5 @@
 # HomeHub Games — Project Document
-> Last updated: 2026-03-05 | Status: **Active — Phase 1**
+> Last updated: 2026-03-06 | Status: **Active — Phase 1**
 > Served at: `http://homehub.local/games`
 
 ---
@@ -68,3 +68,7 @@ A locally hosted games section of the HomeHub Pi. One game per day, shared by th
 - Self-contained HTML files — no build step, no dependencies
 - Shared fonts via `../dashboard/fonts.css`
 - Nginx routes `/games` to `apps/games/index.html`
+- `.puz` source files live in `apps/games/puzzles/source/`
+- `apps/games/puzzles/manifest.json` maps slot numbers to filenames
+- `node scripts/puz-to-js.js` converts the manifest → `puzzles.js`
+- Adding a puzzle: drop `.puz` in `source/`, add entry to `manifest.json`, run script
