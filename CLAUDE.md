@@ -57,10 +57,11 @@ Two living spec documents live in `docs/`. They are the source of truth for proj
 | `docs/project-spec.md` | Master project spec — phases, architecture, backlog, sensor inventory |
 | `docs/games-spec.md` | Games section — current games, roadmap, future ideas |
 
-- **Update the relevant spec in the same PR** that completes the tracked work
+- **Every PR must include a spec update. No exceptions** — a PR is not complete without it.
 - Mark completed tasks with `✅` in roadmap tables or `- [x]` in checklists
 - Update the `Last updated` date at the top of the file whenever it changes
 - If a new decision is made or a backlog item is added, update the spec before closing the PR
+- Before opening a PR, confirm: "did I update the spec?"
 
 ---
 
