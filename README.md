@@ -29,6 +29,9 @@ homehub/
 │   └── *.yaml                  # One config per sensor node
 ├── docs/
 │   └── sensor-guide.md         # Hardware build guide
+├── scripts/
+│   ├── deploy.sh               # Rsync to Pi
+│   └── preview.py              # Local preview server (mirrors Nginx routing)
 ├── secrets.example.yaml        # Copy to secrets.yaml, never commit secrets.yaml
 └── README.md
 ```
@@ -47,6 +50,17 @@ See `docs/sensor-guide.md` for full build and flashing instructions.
 ### Dashboard
 Served by Nginx at `http://homehub.local`.
 Deploy with `./scripts/deploy.sh`.
+
+## Local Preview
+
+Before deploying, verify changes in the browser locally:
+
+```bash
+python3 scripts/preview.py        # opens http://localhost:8080
+python3 scripts/preview.py 9000   # custom port
+```
+
+Mirrors the Nginx routing — `/` serves the dashboard, `/games` serves the games hub. No install required (stdlib only). Ctrl+C to stop.
 
 ## Deploy
 

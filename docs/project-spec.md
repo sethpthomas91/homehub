@@ -1,5 +1,5 @@
 # HomeHub Project — Master Document
-> Last updated: 2026-03-06 | Status: **Active — Phase 1**
+> Last updated: 2026-03-06 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy)
 > Hardware: ESP32 + DHT22 ordered, awaiting delivery | Repo: GitHub Private
 
 ---
@@ -106,6 +106,7 @@ These are non-negotiable constraints that apply to every phase and every compone
 | ✅ Consolidate deploy.sh config block | Dev | PR #4 — all env-specific values in one place |
 | ✅ Clean up secrets.example.yaml | Dev | PR #5 — removed accidental chat transcript |
 | ✅ Restructure repo for multi-app serving | Dev | PR #6 — apps/, nginx/ in version control, /games placeholder live |
+| ✅ Add local preview server | Dev | PR #10 — `scripts/preview.py` mirrors Nginx routing; no deploy needed to preview |
 | Install InfluxDB on Raspberry Pi | Client | InfluxDB 2.x recommended |
 | Configure HA → InfluxDB integration | Client | Built-in HA integration |
 | Build first 2–3 ESP32 + DHT22 sensors | Client | **Waiting on hardware delivery** |
