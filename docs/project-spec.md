@@ -66,10 +66,7 @@ A self-hosted home environment monitoring system running on a Raspberry Pi. The 
 - [x] ESPHome config defined for temp/humid sensors
 - [x] Room layout modelled in 3D (multi-floor, basement, shed)
 - [x] Simulated sensor data driving all UI panels
-
-### In Progress
-- [ ] Move `home-hub.html` into a Git repository
-- [ ] Define folder/repo structure
+- [x] Moved `home-hub.html` into Git repository and defined folder/repo structure (PRs #2–#6)
 
 ### Not Started
 - See Phase roadmap below
