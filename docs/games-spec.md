@@ -22,7 +22,7 @@ A locally hosted games section of the HomeHub Pi. One game per day, shared by th
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Base crossword player | **In progress** | See Claude Code task |
+| Base crossword player | ✅ Done | PR #8 |
 | 30 original 5×5 puzzles | **In progress** | Themed, verified grids |
 | Daily puzzle mechanic | **In progress** | Date-based, no skipping ahead |
 | Progress persistence | **In progress** | localStorage, clears at midnight |
