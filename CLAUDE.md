@@ -30,7 +30,7 @@ This file defines how Claude Code operates in this repo. Follow these rules on e
 
 ## Pull Requests
 
-- When a feature is complete, open a PR to `main` on GitHub
+- Every feature branch must have a PR opened to `main` when the work is complete — never merge directly
 - PR title: same format as commit messages — short, plain English, imperative
 - PR description must include:
   - **What changed** — one or two sentences on what was done
@@ -41,6 +41,26 @@ This file defines how Claude Code operates in this repo. Follow these rules on e
   ```bash
   gh pr create --title "Your title" --body "..." --base main
   ```
+- Always push the branch before creating the PR:
+  ```bash
+  git push -u origin feature/your-description
+  ```
+
+---
+
+## Spec Docs
+
+Two living spec documents live in `docs/`. They are the source of truth for project state.
+
+| File | Covers |
+|------|--------|
+| `docs/project-spec.md` | Master project spec — phases, architecture, backlog, sensor inventory |
+| `docs/games-spec.md` | Games section — current games, roadmap, future ideas |
+
+- **Update the relevant spec in the same PR** that completes the tracked work
+- Mark completed tasks with `✅` in roadmap tables or `- [x]` in checklists
+- Update the `Last updated` date at the top of the file whenever it changes
+- If a new decision is made or a backlog item is added, update the spec before closing the PR
 
 ---
 
