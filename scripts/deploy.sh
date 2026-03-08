@@ -36,7 +36,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Sync scripts to the Pi
-ssh "$PI_USER@$PI_HOST" "mkdir -p $WEB_ROOT/scripts"
+ssh "$PI_USER@$PI_HOST" "sudo mkdir -p $WEB_ROOT/scripts && sudo chown -R $PI_USER $WEB_ROOT/scripts"
 rsync -az scripts/ "$PI_USER@$PI_HOST:$WEB_ROOT/scripts/"
 ssh "$PI_USER@$PI_HOST" "chmod +x $WEB_ROOT/scripts/*.sh"
 
