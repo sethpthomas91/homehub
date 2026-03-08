@@ -82,6 +82,8 @@ Mirrors the Nginx routing — `/` serves the dashboard, `/games` serves the game
 ./scripts/deploy.sh
 ```
 
+For startup, rebuild, and recovery procedures see [`docs/runbook.md`](docs/runbook.md).
+
 ### Pi system stats (one-time setup after first deploy)
 
 `/api/system.json` is served by Nginx from `/var/www/homehub/api/` (not in repo — written by systemd timer).
