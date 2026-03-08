@@ -141,6 +141,27 @@ export function updateRoom(name, patch) {
   _roomsUpdateCallbacks.forEach(cb => cb(rooms));
 }
 
+// ============================================================
+// PI SYSTEM STATS — fetches /api/system.json (written by systemd timer)
+// ============================================================
+
+export async function fetchSystemStats() {
+  try {
+    const res = await fetch('/api/system.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } catch {
+    return null;  // caller shows '--' on null
+  }
+}
+
+export function formatUptime(seconds) {
+  if (seconds == null) return '--';
+  const d = Math.floor(seconds / 86400);
+  const h = Math.floor((seconds % 86400) / 3600);
+  return d > 0 ? `${d}d ${h}h` : `${h}h`;
+}
+
 export function tempColor(t) {
   if (t >= 78) return '#ff6b35';
   if (t >= 74) return '#ffaa44';

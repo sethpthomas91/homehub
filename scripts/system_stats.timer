@@ -1,0 +1,10 @@
+[Unit]
+Description=Run system stats every 30s
+Requires=system_stats.service
+
+[Timer]
+OnBootSec=10
+OnUnitActiveSec=30
+
+[Install]
+WantedBy=timers.target

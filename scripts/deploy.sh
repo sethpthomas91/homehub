@@ -35,6 +35,11 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Sync scripts to the Pi
+ssh "$PI_USER@$PI_HOST" "mkdir -p $WEB_ROOT/scripts"
+rsync -az scripts/ "$PI_USER@$PI_HOST:$WEB_ROOT/scripts/"
+ssh "$PI_USER@$PI_HOST" "chmod +x $WEB_ROOT/scripts/*.sh"
+
 # Install nginx config and reload
 scp "$NGINX_CONF" "$PI_USER@$PI_HOST:/tmp/homehub.conf"
 

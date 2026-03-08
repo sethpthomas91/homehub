@@ -40,7 +40,11 @@ homehub/
 │   └── sensor-guide.md         # Hardware build guide
 ├── scripts/
 │   ├── deploy.sh               # Rsync to Pi
-│   └── preview.py              # Local preview server (mirrors Nginx routing)
+│   ├── preview.py              # Local preview server (mirrors Nginx routing)
+│   ├── system_stats.sh         # Writes /api/system.json (run by systemd timer)
+│   ├── system_stats.service    # systemd service unit
+│   ├── system_stats.timer      # systemd timer unit (every 30s)
+│   └── setup_system_stats.sh   # One-time Pi setup for the stats timer
 ├── secrets.example.yaml        # Copy to secrets.yaml, never commit secrets.yaml
 └── README.md
 ```
@@ -77,6 +81,19 @@ Mirrors the Nginx routing — `/` serves the dashboard, `/games` serves the game
 ```bash
 ./scripts/deploy.sh
 ```
+
+### Pi system stats (one-time setup after first deploy)
+
+`/api/system.json` is served by Nginx from `/var/www/homehub/api/` (not in repo — written by systemd timer).
+After deploying, SSH to the Pi and run the setup script once:
+
+```bash
+ssh sethpthomas91@homehub.local
+./scripts/setup_system_stats.sh
+```
+
+This installs the systemd timer that writes real CPU%, temperature, RAM, and uptime every 30 seconds.
+Until setup runs, the System tab shows `--` for all Pi metrics.
 
 ## Privacy
 No data leaves the local network. See project docs for full containment rules.
