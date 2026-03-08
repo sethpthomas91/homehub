@@ -23,3 +23,11 @@ Thumbs.db
 .vscode/
 .idea/
 .claude/
+
+# ── Puzzle sources & generated data ─────────────────────────
+# Raw .puz files stay on the developer's machine, not in git
+apps/games/puzzles/source/*.puz
+!apps/games/puzzles/source/example.puz
+
+# Generated puzzle data — run scripts/puz-to-js.js to build locally
+apps/games/puzzles/puzzles.js
