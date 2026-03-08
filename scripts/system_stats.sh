@@ -35,11 +35,9 @@ fi
 mem_total_kb=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)
 mem_avail_kb=$(awk '/^MemAvailable:/ {print $2}' /proc/meminfo)
 mem_used_kb=$((mem_total_kb - mem_avail_kb))
-# Convert to GB with 1 decimal via integer arithmetic
-ram_used_gb_int=$((mem_used_kb * 10 / 1048576))
-ram_used_gb="${ram_used_gb_int::-1}.${ram_used_gb_int: -1}"
-ram_total_gb_int=$((mem_total_kb * 10 / 1048576))
-ram_total_gb="${ram_total_gb_int::-1}.${ram_total_gb_int: -1}"
+# Convert to GB with 1 decimal — awk handles leading zero correctly
+ram_used_gb=$(awk "BEGIN {printf \"%.1f\", $mem_used_kb / 1048576}")
+ram_total_gb=$(awk "BEGIN {printf \"%.1f\", $mem_total_kb / 1048576}")
 
 # Uptime — first field of /proc/uptime as integer seconds
 uptime_seconds=$(awk '{print int($1)}' /proc/uptime)
