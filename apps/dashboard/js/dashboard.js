@@ -1,7 +1,8 @@
 // dashboard.js — panels, alerts, tabs, clock, insights, solar, system
 // Orchestrates all other modules. All data flows through api.js.
 
-import { rooms, getSensorReadings, getThermalDelta, dewPoint, updateRoom } from './api.js';
+import { rooms, getSensorReadings, getThermalDelta, dewPoint, updateRoom,
+         TEMP_HOT, TEMP_COLD, DP_NOTE, HUMID_HIGH, SHED_WATCH, SPREAD_NOTE } from './api.js';
 import { focusRoom, applyFloorFilter, flyToFloor, setThermalMode, setTerrainVisible } from './scene3d.js';
 import {
   initHistory, renderHistoryPage, renderRoomFilterBtns,
@@ -161,13 +162,6 @@ function updateEnergyPanel() {
   const comfort    = [];
   const structural = [];
   const airquality = [];
-
-  const TEMP_HOT   = 82;
-  const TEMP_COLD  = 60;
-  const DP_NOTE    = 54;
-  const HUMID_HIGH = 68;
-  const SHED_WATCH = 65;
-  const SPREAD_NOTE = 10;
 
   allRooms.forEach(r => {
     const dp = dewPoint(r.temp, r.humid);
@@ -386,9 +380,6 @@ function buildInsightsPage() {
     structural: { rows: [], label: 'STRUCTURAL',  context: 'Conditions worth logging for a future building review.' },
     airquality: { rows: [], label: 'AIR QUALITY', context: 'Humidity and air conditions across the house.' },
   };
-
-  const TEMP_HOT   = 82, TEMP_COLD = 60, DP_NOTE    = 54;
-  const HUMID_HIGH = 68, SHED_WATCH = 65, SPREAD_NOTE = 10;
 
   const topRooms  = rooms.filter(r => r.floor === 'TOP');
   const bsmtRooms = rooms.filter(r => r.floor === 'BASEMENT');

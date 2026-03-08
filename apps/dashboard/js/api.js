@@ -116,6 +116,16 @@ export function getThermalDelta(roomTemp) {
 }
 
 // ============================================================
+// THRESHOLD CONSTANTS — shared across dashboard.js modules
+// ============================================================
+export const TEMP_HOT    = 82;
+export const TEMP_COLD   = 60;
+export const DP_NOTE     = 54;
+export const HUMID_HIGH  = 68;
+export const SHED_WATCH  = 65;
+export const SPREAD_NOTE = 10;
+
+// ============================================================
 // ROOMS UPDATE — route mutations here instead of mutating rooms[] directly
 // ============================================================
 const _roomsUpdateCallbacks = [];
