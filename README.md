@@ -16,10 +16,19 @@ Self-hosted home environment monitoring and apps. Runs on a Raspberry Pi. All da
 homehub/
 ├── apps/
 │   ├── dashboard/
-│   │   ├── home-hub.html       # Main dashboard
+│   │   ├── home-hub.html       # Markup + imports only
 │   │   ├── fonts.css           # Self-hosted font declarations
 │   │   ├── three.min.js        # Three.js (self-hosted)
-│   │   └── fonts/              # WOFF2 font files
+│   │   ├── fonts/              # WOFF2 font files
+│   │   ├── css/
+│   │   │   ├── theme.css       # CSS custom properties (swap to retheme)
+│   │   │   ├── layout.css      # Grid, panels, responsive breakpoints
+│   │   │   └── components.css  # Sensor cards, gauges, alerts, charts
+│   │   └── js/
+│   │       ├── api.js          # Data contract + simulated adapter
+│   │       ├── scene3d.js      # Three.js scene and animation loop
+│   │       ├── history.js      # Chart rendering + localStorage logging
+│   │       └── dashboard.js    # Panels, alerts, tabs, clock, insights
 │   └── games/
 │       ├── index.html          # Games hub placeholder
 │       └── puzzles/            # Puzzle games (in progress)
