@@ -1,0 +1,16 @@
+/* theme.css — CSS custom properties ONLY
+   Swap this file to retheme the entire dashboard */
+
+:root {
+  --bg: #0a0c0f;
+  --panel: #111620;
+  --border: #243040;
+  --accent: #00d4ff;
+  --accent2: #ff6b35;
+  --accent3: #39ff14;
+  --warn: #ffbe00;
+  --text: #c8d8e8;
+  --dim: #7a9ab0;
+  --hot: #ff4444;
+  --cold: #4488ff;
+}
