@@ -69,9 +69,13 @@ A locally hosted games section of the HomeHub Pi. One game per day, shared by th
 - Self-contained HTML files — no build step, no dependencies
 - Shared fonts via `../dashboard/fonts.css`
 - Nginx routes `/games` to `apps/games/index.html`
-- `.puz` source files live in `apps/games/puzzles/source/`
-- `apps/games/puzzles/manifest.json` maps slot numbers to filenames
+- `.puz` source files live in `apps/games/puzzles/source/` — **gitignored** (stay on developer's machine only)
+- `apps/games/puzzles/source/example.puz` is the one tracked reference showing expected format
+- `apps/games/puzzles/puzzles.js` is a **generated artifact — gitignored**; never commit it
+- `apps/games/puzzles/manifest.json` maps slot numbers to filenames — **gitignored** (local artifact); never commit it
+- `apps/games/puzzles/manifest.example.json` is the tracked reference showing the expected format (one example entry)
 - `node scripts/puz-to-js.js` converts the manifest → `puzzles.js`
+- **Local build workflow:** copy `manifest.example.json` → `manifest.json`, add your `.puz` entries, run `node scripts/puz-to-js.js`
 - Adding a puzzle: drop `.puz` in `source/`, add entry to `manifest.json`, run script
 - Puzzle objects require `rows` and `cols` fields (emitted by converter); grids larger than `MAX_GRID_SIZE` (9×9) are rejected at runtime with an error message
 - Grid CSS uses custom properties (`--rows`, `--cols`, `--grid-w`, `--grid-h`) set dynamically per puzzle; 60px/cell, capped at 560px
