@@ -101,7 +101,7 @@ buildCards();
 // ENERGY / ALERT PANEL
 // ============================================================
 function alertItem(msg, cls) {
-  return `<div class="alert-item ${cls}">${msg}</div>`;
+  return { html: `<div class="alert-item ${cls}">${msg}</div>`, text: msg };
 }
 function alertNone(msg) {
   return `<div class="alert-none">${msg}</div>`;
@@ -190,7 +190,7 @@ function updateEnergyPanel() {
   const renderCat = (elId, items, noneMsg) => {
     const container = el(elId);
     if (!container) return;
-    container.innerHTML = items.length ? items.join('') : alertNone(noneMsg);
+    container.innerHTML = items.length ? items.map(a => a.html).join('') : alertNone(noneMsg);
     const catBlock = container.closest('.health-cat');
     if (catBlock) catBlock.classList.toggle('has-issues', items.length > 0);
   };
@@ -199,8 +199,8 @@ function updateEnergyPanel() {
   renderCat('airqualityAlerts', airquality, 'Air quality nominal');
 
   // Header alert count
-  const actionableCount = comfort.filter(a => a.includes('warn-hot') || a.includes('warn-cold')).length
-    + structural.filter(a => a.includes('warn-hot')).length;
+  const actionableCount = comfort.filter(a => a.html.includes('warn-hot') || a.html.includes('warn-cold')).length
+    + structural.filter(a => a.html.includes('warn-hot')).length;
   const headerItem  = el('headerAlertItem');
   const headerCount = el('headerAlertCount');
   if (headerItem && headerCount) {
@@ -215,21 +215,16 @@ function updateEnergyPanel() {
   // House status summary
   const statusEl = el('houseStatus');
   if (statusEl) {
-    const totalIssues = comfort.length + structural.filter(a => a.includes('warn-mid')).length;
-    const watchItems  = structural.filter(a => a.includes('info')).length;
+    const totalIssues = comfort.length + structural.filter(a => a.html.includes('warn-mid')).length;
+    const watchItems  = structural.filter(a => a.html.includes('info')).length;
     let cls, icon, title, sub;
     if (totalIssues > 0) {
       cls  = 'warning';
       icon = '◈';
-      const plainSummaries = [];
-      comfort.forEach(a => {
-        const m = a.match(/class="alert-item[^"]*">([^<]+)</);
-        if (m) plainSummaries.push(m[1].trim());
-      });
-      structural.filter(a => a.includes('warn-mid')).forEach(a => {
-        const m = a.match(/class="alert-item[^"]*">([^<]+)</);
-        if (m) plainSummaries.push(m[1].trim());
-      });
+      const plainSummaries = [
+        ...comfort.map(a => a.text),
+        ...structural.filter(a => a.html.includes('warn-mid')).map(a => a.text),
+      ];
       title = totalIssues === 1 ? 'One thing to keep an eye on' : `${totalIssues} things to keep an eye on`;
       sub   = plainSummaries.slice(0, 2).join(' · ') || 'See Insights tab for details';
     } else if (watchItems > 0) {

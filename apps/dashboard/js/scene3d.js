@@ -19,6 +19,10 @@ export let thermalDeltaMode = true;
 // ============================================================
 const canvas = document.getElementById('threeCanvas');
 const wrap   = document.getElementById('canvasWrap');
+if (!canvas || !wrap) {
+  console.error('scene3d.js: #threeCanvas or #canvasWrap not found — aborting');
+  throw new Error('scene3d: missing DOM elements');
+}
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
