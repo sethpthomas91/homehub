@@ -25,10 +25,6 @@ function parsePuz(buf) {
   const numClues = buf.readUInt16LE(0x2E);
   const size     = width * height;
 
-  if (width !== 5 || height !== 5) {
-    return null; // caller will warn
-  }
-
   // Solution grid starts at byte 0x34
   const solutionBytes = buf.slice(0x34, 0x34 + size);
   const solution = solutionBytes.toString('latin1'); // '.' = black square in .puz
@@ -55,21 +51,21 @@ function parsePuz(buf) {
     rawClues.push(readString());
   }
 
-  return { grid, title, rawClues };
+  return { grid, title, rawClues, width, height };
 }
 
 // ---------------------------------------------------------------------------
 // Numbering — mirrors the algorithm in index.html
 // ---------------------------------------------------------------------------
-function numberCells(grid) {
+function numberCells(grid, width, height) {
   const nums = {};
   let n = 1;
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < width * height; i++) {
     if (grid[i] === '#') continue;
-    const row = Math.floor(i / 5);
-    const col = i % 5;
-    const startsAcross = (col === 0 || grid[i - 1] === '#') && col < 4 && grid[i + 1] !== '#';
-    const startsDown   = (row === 0 || grid[i - 5] === '#') && row < 4 && grid[i + 5] !== '#';
+    const row = Math.floor(i / width);
+    const col = i % width;
+    const startsAcross = (col === 0 || grid[i - 1] === '#') && col < width - 1 && grid[i + 1] !== '#';
+    const startsDown   = (row === 0 || grid[i - width] === '#') && row < height - 1 && grid[i + width] !== '#';
     if (startsAcross || startsDown) nums[i] = n++;
   }
   return nums;
@@ -78,8 +74,8 @@ function numberCells(grid) {
 // ---------------------------------------------------------------------------
 // Assign raw clues (in .puz reading order) to across/down by clue number
 // ---------------------------------------------------------------------------
-function assignClues(grid, rawClues) {
-  const nums = numberCells(grid);
+function assignClues(grid, rawClues, width, height) {
+  const nums = numberCells(grid, width, height);
   const across = {};
   const down   = {};
   let clueIdx  = 0;
@@ -89,11 +85,11 @@ function assignClues(grid, rawClues) {
   // in reading order that starts a word, across comes before down.
   for (const [idxStr, num] of Object.entries(nums).sort((a, b) => parseInt(a[0]) - parseInt(b[0]))) {
     const idx = parseInt(idxStr, 10);
-    const row = Math.floor(idx / 5);
-    const col = idx % 5;
+    const row = Math.floor(idx / width);
+    const col = idx % width;
 
-    const startsAcross = (col === 0 || grid[idx - 1] === '#') && col < 4 && grid[idx + 1] !== '#';
-    const startsDown   = (row === 0 || grid[idx - 5] === '#') && row < 4 && grid[idx + 5] !== '#';
+    const startsAcross = (col === 0 || grid[idx - 1] === '#') && col < width - 1 && grid[idx + 1] !== '#';
+    const startsDown   = (row === 0 || grid[idx - width] === '#') && row < height - 1 && grid[idx + width] !== '#';
 
     if (startsAcross) across[num] = rawClues[clueIdx++] || '';
     if (startsDown)   down[num]   = rawClues[clueIdx++] || '';
@@ -124,15 +120,15 @@ for (const entry of manifest) {
   const parsed = parsePuz(buf);
 
   if (!parsed) {
-    console.warn(`SKIP (not 5×5): slot ${entry.slot} — ${entry.file}`);
+    console.warn(`SKIP (parse failed): slot ${entry.slot} — ${entry.file}`);
     continue;
   }
 
   const title = entry.title || parsed.title || `Puzzle ${entry.slot}`;
-  const { across, down } = assignClues(parsed.grid, parsed.rawClues);
+  const { across, down } = assignClues(parsed.grid, parsed.rawClues, parsed.width, parsed.height);
 
-  puzzles.push({ title, grid: parsed.grid, clues: { across, down } });
-  console.log(`OK  slot ${entry.slot}: "${title}" (${parsed.rawClues.length} clues)`);
+  puzzles.push({ title, rows: parsed.height, cols: parsed.width, grid: parsed.grid, clues: { across, down } });
+  console.log(`OK  slot ${entry.slot}: "${title}" ${parsed.width}×${parsed.height} (${parsed.rawClues.length} clues)`);
 }
 
 if (!ok) {
@@ -163,6 +159,8 @@ for (let i = 0; i < puzzles.length; i++) {
   const comma = i < puzzles.length - 1 ? ',' : '';
   lines.push('  {');
   lines.push(`    title: ${JSON.stringify(p.title)},`);
+  lines.push(`    rows:  ${p.rows},`);
+  lines.push(`    cols:  ${p.cols},`);
   lines.push(`    grid:  ${JSON.stringify(p.grid)},`);
   lines.push('    clues: {');
   lines.push(`      across: ${jsonClues(p.clues.across)},`);

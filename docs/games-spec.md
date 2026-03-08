@@ -1,5 +1,5 @@
 # HomeHub Games — Project Document
-> Last updated: 2026-03-06 | Status: **Active — Phase 1**
+> Last updated: 2026-03-08 | Status: **Active — Phase 1**
 > Served at: `http://homehub.local/games`
 
 ---
@@ -13,7 +13,7 @@ A locally hosted games section of the HomeHub Pi. One game per day, shared by th
 
 | Game | Status | Notes |
 |------|--------|-------|
-| Mini Crossword | **In progress** | 5×5 daily puzzle, 30 puzzles to start |
+| Mini Crossword | **In progress** | Daily puzzle, variable grid size (up to 9×9), 30 puzzles to start |
 
 ---
 
@@ -23,7 +23,8 @@ A locally hosted games section of the HomeHub Pi. One game per day, shared by th
 | Task | Status | Notes |
 |------|--------|-------|
 | Base crossword player | ✅ Done | PR #8 |
-| 30 original 5×5 puzzles | **In progress** | Themed, verified grids |
+| Dynamic grid sizing | ✅ Done | Any size up to `MAX_GRID_SIZE` (9); `rows`/`cols` required puzzle fields |
+| 30 original puzzles | **In progress** | Themed, verified grids; variable size allowed |
 | Daily puzzle mechanic | **In progress** | Date-based, no skipping ahead |
 | Progress persistence | **In progress** | localStorage, clears at midnight |
 | Mobile/tablet layout | **In progress** | Tap to select, keyboard friendly |
@@ -72,3 +73,5 @@ A locally hosted games section of the HomeHub Pi. One game per day, shared by th
 - `apps/games/puzzles/manifest.json` maps slot numbers to filenames
 - `node scripts/puz-to-js.js` converts the manifest → `puzzles.js`
 - Adding a puzzle: drop `.puz` in `source/`, add entry to `manifest.json`, run script
+- Puzzle objects require `rows` and `cols` fields (emitted by converter); grids larger than `MAX_GRID_SIZE` (9×9) are rejected at runtime with an error message
+- Grid CSS uses custom properties (`--rows`, `--cols`, `--grid-w`, `--grid-h`) set dynamically per puzzle; 60px/cell, capped at 560px

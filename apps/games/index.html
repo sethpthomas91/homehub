@@ -61,11 +61,11 @@
 
     #grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      grid-template-rows: repeat(5, 1fr);
+      grid-template-columns: repeat(var(--cols, 5), 1fr);
+      grid-template-rows: repeat(var(--rows, 5), 1fr);
       gap: 3px;
-      width: min(calc(100vw - 2rem), 320px);
-      height: min(calc(100vw - 2rem), 320px);
+      width: min(calc(100vw - 2rem), var(--grid-w, 320px));
+      height: min(calc(100vw - 2rem), var(--grid-h, 320px));
     }
 
     .cell {
@@ -299,11 +299,11 @@
 function numberCells(grid) {
   const nums = {};
   let n = 1;
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < ROWS * COLS; i++) {
     if (grid[i] === '#') continue;
-    const row = Math.floor(i / 5), col = i % 5;
-    const startsAcross = (col === 0 || grid[i - 1] === '#') && col < 4 && grid[i + 1] !== '#';
-    const startsDown   = (row === 0 || grid[i - 5] === '#') && row < 4 && grid[i + 5] !== '#';
+    const row = Math.floor(i / COLS), col = i % COLS;
+    const startsAcross = (col === 0 || grid[i - 1] === '#') && col < COLS - 1 && grid[i + 1] !== '#';
+    const startsDown   = (row === 0 || grid[i - COLS] === '#') && row < ROWS - 1 && grid[i + COLS] !== '#';
     if (startsAcross || startsDown) nums[i] = n++;
   }
   return nums;
@@ -315,19 +315,19 @@ function numberCells(grid) {
 function buildWords(grid, cellNums) {
   const words = [];
   const cellWordMap = {};
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < ROWS * COLS; i++) {
     if (grid[i] !== '#') cellWordMap[i] = {};
   }
 
   for (const [idxStr, num] of Object.entries(cellNums)) {
     const idx = parseInt(idxStr, 10);
-    const row = Math.floor(idx / 5);
-    const col = idx % 5;
+    const row = Math.floor(idx / COLS);
+    const col = idx % COLS;
 
-    const startsAcross = (col === 0 || grid[idx - 1] === '#') && col < 4 && grid[idx + 1] !== '#';
+    const startsAcross = (col === 0 || grid[idx - 1] === '#') && col < COLS - 1 && grid[idx + 1] !== '#';
     if (startsAcross) {
       const cells = [];
-      for (let j = idx; j < 25 && Math.floor(j / 5) === row && grid[j] !== '#'; j++) {
+      for (let j = idx; j < ROWS * COLS && Math.floor(j / COLS) === row && grid[j] !== '#'; j++) {
         cells.push(j);
       }
       const key = `across-${num}`;
@@ -335,10 +335,10 @@ function buildWords(grid, cellNums) {
       cells.forEach(c => { cellWordMap[c].across = key; });
     }
 
-    const startsDown = (row === 0 || grid[idx - 5] === '#') && row < 4 && grid[idx + 5] !== '#';
+    const startsDown = (row === 0 || grid[idx - COLS] === '#') && row < ROWS - 1 && grid[idx + COLS] !== '#';
     if (startsDown) {
       const cells = [];
-      for (let j = idx; j < 25 && grid[j] !== '#'; j += 5) {
+      for (let j = idx; j < ROWS * COLS && grid[j] !== '#'; j += COLS) {
         cells.push(j);
       }
       const key = `down-${num}`;
@@ -371,6 +371,7 @@ function getPuzzleIndex() {
 // ---------------------------------------------------------------------------
 // App state
 // ---------------------------------------------------------------------------
+let ROWS, COLS;
 let puzzle, cellNums, words, cellWordMap;
 let selectedCell = null;
 let direction = 'across';
@@ -516,15 +517,15 @@ function handleBackspace() {
 
 function handleArrow(key) {
   if (selectedCell === null) return;
-  const row = Math.floor(selectedCell / 5);
-  const col = selectedCell % 5;
+  const row = Math.floor(selectedCell / COLS);
+  const col = selectedCell % COLS;
   let nr = row, nc = col;
   if (key === 'ArrowRight') { nc++; direction = 'across'; }
   else if (key === 'ArrowLeft') { nc--; direction = 'across'; }
   else if (key === 'ArrowDown') { nr++; direction = 'down'; }
   else if (key === 'ArrowUp') { nr--; direction = 'down'; }
-  if (nr < 0 || nr >= 5 || nc < 0 || nc >= 5) return;
-  const next = nr * 5 + nc;
+  if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) return;
+  const next = nr * COLS + nc;
   if (puzzle.grid[next] === '#') return;
   selectedCell = next;
   render();
@@ -589,7 +590,7 @@ function showVictory() {
 // ---------------------------------------------------------------------------
 function renderGrid() {
   const activeWordCells = getActiveWordCells();
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < ROWS * COLS; i++) {
     const cell = document.querySelector(`.cell[data-idx="${i}"]`);
     if (!cell || puzzle.grid[i] === '#') continue;
 
@@ -624,7 +625,7 @@ function render() {
 function buildGrid() {
   const gridEl = document.getElementById('grid');
   gridEl.innerHTML = '';
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < ROWS * COLS; i++) {
     const cell = document.createElement('div');
     cell.className = 'cell';
     cell.dataset.idx = i;
@@ -666,11 +667,31 @@ function buildClues() {
 // ---------------------------------------------------------------------------
 // Init
 // ---------------------------------------------------------------------------
+const MAX_GRID_SIZE = 9;
+
+function showError(msg) {
+  document.getElementById('grid').textContent = msg;
+}
+
 function init() {
   const puzzleIndex = getPuzzleIndex();
   state = loadState(puzzleIndex);
 
   puzzle = PUZZLES[puzzleIndex];
+  ROWS = puzzle.rows;
+  COLS = puzzle.cols;
+
+  if (ROWS > MAX_GRID_SIZE || COLS > MAX_GRID_SIZE) {
+    showError(`Puzzle (${COLS}×${ROWS}) exceeds max renderable size of ${MAX_GRID_SIZE}.`);
+    return;
+  }
+
+  const gridEl = document.getElementById('grid');
+  gridEl.style.setProperty('--cols', COLS);
+  gridEl.style.setProperty('--rows', ROWS);
+  gridEl.style.setProperty('--grid-w', `${Math.min(COLS * 60, 560)}px`);
+  gridEl.style.setProperty('--grid-h', `${Math.min(ROWS * 60, 560)}px`);
+
   cellNums = numberCells(puzzle.grid);
   ({ words, cellWordMap } = buildWords(puzzle.grid, cellNums));
 

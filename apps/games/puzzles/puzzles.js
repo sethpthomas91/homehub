@@ -4,6 +4,8 @@
 const PUZZLES = [
   {
     title: "Daily 49",
+    rows:  5,
+    cols:  5,
     grid:  "##ODE#PRIXPIANOAUTO#SSE##",
     clues: {
       across: {

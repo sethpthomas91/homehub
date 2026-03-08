@@ -6,14 +6,14 @@
 // Functions under test (pure copies for isolation — no DOM, no global state)
 // ---------------------------------------------------------------------------
 
-function numberCells(grid) {
+function numberCells(grid, rows = 5, cols = 5) {
   const nums = {};
   let n = 1;
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < rows * cols; i++) {
     if (grid[i] === '#') continue;
-    const row = Math.floor(i / 5), col = i % 5;
-    const startsAcross = (col === 0 || grid[i - 1] === '#') && col < 4 && grid[i + 1] !== '#';
-    const startsDown   = (row === 0 || grid[i - 5] === '#') && row < 4 && grid[i + 5] !== '#';
+    const row = Math.floor(i / cols), col = i % cols;
+    const startsAcross = (col === 0 || grid[i - 1] === '#') && col < cols - 1 && grid[i + 1] !== '#';
+    const startsDown   = (row === 0 || grid[i - cols] === '#') && row < rows - 1 && grid[i + cols] !== '#';
     if (startsAcross || startsDown) nums[i] = n++;
   }
   return nums;
@@ -26,28 +26,28 @@ function getPuzzleIndex() {
   return dayOfYear % PUZZLES.length;
 }
 
-function buildWords(grid, cellNums) {
+function buildWords(grid, cellNums, rows = 5, cols = 5) {
   const words = [];
   const cellWordMap = {};
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < rows * cols; i++) {
     if (grid[i] !== '#') cellWordMap[i] = {};
   }
   for (const [idxStr, num] of Object.entries(cellNums)) {
     const idx = parseInt(idxStr, 10);
-    const row = Math.floor(idx / 5);
-    const col = idx % 5;
-    const startsAcross = (col === 0 || grid[idx - 1] === '#') && col < 4 && grid[idx + 1] !== '#';
+    const row = Math.floor(idx / cols);
+    const col = idx % cols;
+    const startsAcross = (col === 0 || grid[idx - 1] === '#') && col < cols - 1 && grid[idx + 1] !== '#';
     if (startsAcross) {
       const cells = [];
-      for (let j = idx; j < 25 && Math.floor(j / 5) === row && grid[j] !== '#'; j++) cells.push(j);
+      for (let j = idx; j < rows * cols && Math.floor(j / cols) === row && grid[j] !== '#'; j++) cells.push(j);
       const key = `across-${num}`;
       words.push({ key, dir: 'across', num, cells, answer: cells.map(c => grid[c]).join('') });
       cells.forEach(c => { cellWordMap[c].across = key; });
     }
-    const startsDown = (row === 0 || grid[idx - 5] === '#') && row < 4 && grid[idx + 5] !== '#';
+    const startsDown = (row === 0 || grid[idx - cols] === '#') && row < rows - 1 && grid[idx + cols] !== '#';
     if (startsDown) {
       const cells = [];
-      for (let j = idx; j < 25 && grid[j] !== '#'; j += 5) cells.push(j);
+      for (let j = idx; j < rows * cols && grid[j] !== '#'; j += cols) cells.push(j);
       const key = `down-${num}`;
       words.push({ key, dir: 'down', num, cells, answer: cells.map(c => grid[c]).join('') });
       cells.forEach(c => { cellWordMap[c].down = key; });
@@ -154,12 +154,12 @@ assert('isWordComplete: lowercase letters → false',
 // ---------------------------------------------------------------------------
 
 for (const puzzle of PUZZLES) {
-  const cellNums = numberCells(puzzle.grid);
-  const { words, cellWordMap } = buildWords(puzzle.grid, cellNums);
+  const cellNums = numberCells(puzzle.grid, puzzle.rows, puzzle.cols);
+  const { words, cellWordMap } = buildWords(puzzle.grid, cellNums, puzzle.rows, puzzle.cols);
 
   // Every non-black cell that belongs to both an across and a down word must
   // have matching letters in both answers at the intersection position.
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < puzzle.rows * puzzle.cols; i++) {
     if (puzzle.grid[i] === '#') continue;
     const acKey = cellWordMap[i]?.across;
     const dnKey = cellWordMap[i]?.down;
