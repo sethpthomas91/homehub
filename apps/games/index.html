@@ -681,6 +681,16 @@ function init() {
   ROWS = puzzle.rows;
   COLS = puzzle.cols;
 
+  if (!ROWS || !COLS) {
+    showError('Puzzle is missing required rows/cols fields.');
+    return;
+  }
+
+  if (puzzle.grid.length !== ROWS * COLS) {
+    showError(`Puzzle grid length (${puzzle.grid.length}) does not match rows×cols (${ROWS * COLS}).`);
+    return;
+  }
+
   if (ROWS > MAX_GRID_SIZE || COLS > MAX_GRID_SIZE) {
     showError(`Puzzle (${COLS}×${ROWS}) exceeds max renderable size of ${MAX_GRID_SIZE}.`);
     return;
