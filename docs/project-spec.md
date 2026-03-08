@@ -1,5 +1,5 @@
 # HomeHub Project — Master Document
-> Last updated: 2026-03-07 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy)
+> Last updated: 2026-03-08 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy)
 > Hardware: ESP32 + DHT22 ordered, awaiting delivery | Repo: GitHub Private
 
 ---
@@ -68,6 +68,7 @@ A self-hosted home environment monitoring system running on a Raspberry Pi. The 
 - [x] Simulated sensor data driving all UI panels
 - [x] Moved `home-hub.html` into Git repository and defined folder/repo structure (PRs #2–#6)
 - [x] Dashboard refactored into modular structure: `css/theme.css`, `css/layout.css`, `css/components.css`, `js/api.js` (data contract), `js/scene3d.js`, `js/history.js`, `js/dashboard.js` (PR #13)
+- [x] Dashboard code quality pass: `localStorage` fix, interval ID capture, CSS variable extraction, `updateRoom()`/`onRoomsUpdate()` infrastructure, threshold constants centralised (PR #14)
 
 ### Not Started
 - See Phase roadmap below
@@ -110,7 +111,8 @@ These are non-negotiable constraints that apply to every phase and every compone
 | Build first 2–3 ESP32 + DHT22 sensors | Client | **Waiting on hardware delivery** |
 | Mount sensors, confirm live readings in HA | Client | |
 | ✅ Refactor dashboard into modular file structure (CSS/JS split) | Dev | PR #13 — `css/`, `js/` dirs; `api.js` data contract; ES modules |
-| Write HA REST adapter in `api.js` — replace simulated `rooms[]` with real API call | Dev | Data contract defined; swap `getSensorReadings()` body only |
+| ✅ Fix dashboard code quality issues | Dev | PR #14 — localStorage fix, interval IDs, CSS variables, `updateRoom()` / `onRoomsUpdate()` hook, threshold constants centralized |
+| Write HA REST adapter in `api.js` — replace simulated `rooms[]` with real API call | Dev | Data contract defined; swap `getSensorReadings()` body only; `onRoomsUpdate()` hook ready for Phase 1 polling |
 | Add MQTT broker (Mosquitto) to Pi | Client | Enables future Zigbee devices |
 
 **Phase 1 exit criteria:** At least 3 real sensors reporting live to the dashboard. History tab logging real data to InfluxDB.
