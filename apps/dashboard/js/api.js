@@ -115,6 +115,22 @@ export function getThermalDelta(roomTemp) {
   return { delta: roomTemp - simOutdoor, outdoor: simOutdoor, simulated: true };
 }
 
+// ============================================================
+// ROOMS UPDATE — route mutations here instead of mutating rooms[] directly
+// ============================================================
+const _roomsUpdateCallbacks = [];
+
+export function onRoomsUpdate(callback) {
+  _roomsUpdateCallbacks.push(callback);
+}
+
+export function updateRoom(name, patch) {
+  const room = rooms.find(r => r.name === name);
+  if (!room) return;
+  Object.assign(room, patch);
+  _roomsUpdateCallbacks.forEach(cb => cb(rooms));
+}
+
 export function tempColor(t) {
   if (t >= 78) return '#ff6b35';
   if (t >= 74) return '#ffaa44';

@@ -1,7 +1,7 @@
 // dashboard.js — panels, alerts, tabs, clock, insights, solar, system
 // Orchestrates all other modules. All data flows through api.js.
 
-import { rooms, getSensorReadings, getThermalDelta, dewPoint } from './api.js';
+import { rooms, getSensorReadings, getThermalDelta, dewPoint, updateRoom } from './api.js';
 import { focusRoom, applyFloorFilter, flyToFloor, setThermalMode, setTerrainVisible } from './scene3d.js';
 import {
   initHistory, renderHistoryPage, renderRoomFilterBtns,
@@ -280,8 +280,10 @@ document.querySelector('.floor-btn[data-floor="ALL"]').classList.add('active');
 // ============================================================
 _simulationIntervalId = setInterval(() => {
   rooms.forEach(r => {
-    r.temp  = Math.round((r.temp  + (Math.random() - 0.5) * 0.4) * 10) / 10;
-    r.humid = Math.round(Math.max(30, Math.min(85, r.humid + (Math.random() - 0.5) * 0.6)) * 10) / 10;
+    updateRoom(r.name, {
+      temp:  Math.round((r.temp  + (Math.random() - 0.5) * 0.4) * 10) / 10,
+      humid: Math.round(Math.max(30, Math.min(85, r.humid + (Math.random() - 0.5) * 0.6)) * 10) / 10,
+    });
   });
   buildCards();
   const avgTemp  = (rooms.reduce((a, r) => a + r.temp,  0) / rooms.length).toFixed(1);
