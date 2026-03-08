@@ -5,7 +5,7 @@
 
 OUT_DIR="/var/www/homehub/api"
 OUT_FILE="$OUT_DIR/system.json"
-TMP_FILE="/tmp/system_stats_tmp.json"
+TMP_FILE="/var/www/homehub/api/.system_stats_tmp.json"
 
 # CPU% — two-sample /proc/stat delta (0.5s apart)
 read_cpu_sample() {
