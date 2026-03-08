@@ -1,5 +1,5 @@
 # HomeHub Games — Project Document
-> Last updated: 2026-03-08 | Status: **Active — Phase 1** (updated: puzzle sources gitignored)
+> Last updated: 2026-03-08 | Status: **Active — Phase 1**
 > Served at: `http://homehub.local/games`
 
 ---
