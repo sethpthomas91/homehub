@@ -35,6 +35,11 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Sync scripts to the Pi
+ssh "$PI_USER@$PI_HOST" "sudo mkdir -p $WEB_ROOT/scripts && sudo chown -R $PI_USER $WEB_ROOT/scripts"
+rsync -az scripts/ "$PI_USER@$PI_HOST:$WEB_ROOT/scripts/"
+ssh "$PI_USER@$PI_HOST" "chmod +x $WEB_ROOT/scripts/*.sh"
+
 # Install nginx config and reload
 scp "$NGINX_CONF" "$PI_USER@$PI_HOST:/tmp/homehub.conf"
 
@@ -42,6 +47,7 @@ ssh "$PI_USER@$PI_HOST" "
   sudo cp /tmp/homehub.conf /etc/nginx/sites-available/homehub.conf &&
   sudo ln -sf /etc/nginx/sites-available/homehub.conf /etc/nginx/sites-enabled/homehub.conf &&
   sudo chown -R www-data:www-data $WEB_ROOT &&
+  sudo chown $PI_USER $WEB_ROOT/api &&
   sudo nginx -t && sudo systemctl reload nginx
 "
 

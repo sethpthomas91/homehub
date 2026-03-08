@@ -2,7 +2,8 @@
 // Orchestrates all other modules. All data flows through api.js.
 
 import { rooms, getSensorReadings, getThermalDelta, dewPoint, updateRoom,
-         TEMP_HOT, TEMP_COLD, DP_NOTE, HUMID_HIGH, SHED_WATCH, SPREAD_NOTE } from './api.js';
+         TEMP_HOT, TEMP_COLD, DP_NOTE, HUMID_HIGH, SHED_WATCH, SPREAD_NOTE,
+         fetchSystemStats, formatUptime } from './api.js';
 import { focusRoom, applyFloorFilter, flyToFloor, setThermalMode, setTerrainVisible } from './scene3d.js';
 import {
   initHistory, renderHistoryPage, renderRoomFilterBtns,
@@ -15,7 +16,7 @@ import {
 let activeFloor = 'ALL';
 
 // Interval IDs — retained for cleanup
-let _clockIntervalId, _energyPanelIntervalId, _simulationIntervalId;
+let _clockIntervalId, _energyPanelIntervalId, _simulationIntervalId, _systemStatsIntervalId;
 
 // ============================================================
 // CLOCK
@@ -281,10 +282,30 @@ _simulationIntervalId = setInterval(() => {
   const _ahv = document.getElementById('avg-humid-val'); if (_ahv) _ahv.textContent = avgHumid + '%';
   const _atb = document.getElementById('avg-temp-bar');  if (_atb) _atb.style.width = ((avgTemp - 60) / 30 * 100) + '%';
   const _ahb = document.getElementById('avg-humid-bar'); if (_ahb) _ahb.style.width = avgHumid + '%';
-  document.getElementById('cpu-val').textContent = (28 + Math.random() * 20).toFixed(0) + '%';
-  document.getElementById('pi-temp').textContent = (48 + Math.random() * 8).toFixed(0)  + '°C';
   updateEnergyPanel();
 }, 3000);
+
+// ============================================================
+// SYSTEM STATS — polls /api/system.json every 30s
+// ============================================================
+async function updateSystemStats() {
+  const stats = await fetchSystemStats();
+  const el = id => document.getElementById(id);
+  if (!stats) {
+    ['cpu-val', 'pi-temp', 'ram-val', 'uptime', 'last-sync']
+      .forEach(id => { if (el(id)) el(id).textContent = '--'; });
+    return;
+  }
+  if (el('cpu-val'))  el('cpu-val').textContent  = stats.cpu_pct + '%';
+  if (el('pi-temp'))  el('pi-temp').textContent  = stats.cpu_temp_c + '°C';
+  if (el('ram-val'))  el('ram-val').textContent  = stats.ram_used_gb.toFixed(1) + ' / ' + stats.ram_total_gb.toFixed(1) + ' GB';
+  if (el('uptime'))   el('uptime').textContent   = formatUptime(stats.uptime_seconds);
+  const ageSec = Math.round((Date.now() - new Date(stats.generated_at).getTime()) / 1000);
+  if (el('last-sync')) el('last-sync').textContent = ageSec < 5 ? 'just now' : ageSec < 60 ? ageSec + 's ago' : Math.floor(ageSec / 60) + 'm ago';
+}
+
+_systemStatsIntervalId = setInterval(updateSystemStats, 30000);
+updateSystemStats();
 
 // ============================================================
 // TAB SWITCHING
@@ -600,7 +621,8 @@ updateEnergyPanel();
 initHistory();
 
 export function destroyDashboard() {
-  if (_clockIntervalId)       { clearInterval(_clockIntervalId);       _clockIntervalId       = null; }
-  if (_energyPanelIntervalId) { clearInterval(_energyPanelIntervalId); _energyPanelIntervalId = null; }
-  if (_simulationIntervalId)  { clearInterval(_simulationIntervalId);  _simulationIntervalId  = null; }
+  if (_clockIntervalId)         { clearInterval(_clockIntervalId);         _clockIntervalId         = null; }
+  if (_energyPanelIntervalId)   { clearInterval(_energyPanelIntervalId);   _energyPanelIntervalId   = null; }
+  if (_simulationIntervalId)    { clearInterval(_simulationIntervalId);    _simulationIntervalId    = null; }
+  if (_systemStatsIntervalId)   { clearInterval(_systemStatsIntervalId);   _systemStatsIntervalId   = null; }
 }

@@ -1,0 +1,7 @@
+[Unit]
+Description=Write Pi system stats JSON
+
+[Service]
+Type=oneshot
+ExecStart=/var/www/homehub/scripts/system_stats.sh
+User=sethpthomas91

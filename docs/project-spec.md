@@ -1,5 +1,5 @@
 # HomeHub Project — Master Document
-> Last updated: 2026-03-08 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy)
+> Last updated: 2026-03-08 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer)
 > Hardware: ESP32 + DHT22 ordered, awaiting delivery | Repo: GitHub Private
 
 ---
@@ -112,6 +112,7 @@ These are non-negotiable constraints that apply to every phase and every compone
 | Mount sensors, confirm live readings in HA | Client | |
 | ✅ Refactor dashboard into modular file structure (CSS/JS split) | Dev | PR #13 — `css/`, `js/` dirs; `api.js` data contract; ES modules |
 | ✅ Fix dashboard code quality issues | Dev | PR #14 — localStorage fix, interval IDs, CSS variables, `updateRoom()` / `onRoomsUpdate()` hook, threshold constants centralized |
+| ✅ Add Pi system stats (CPU/RAM/temp/uptime) — shell script + systemd timer | Dev | `system_stats.sh` writes `/api/system.json` every 30s; dashboard polls it; run `setup_system_stats.sh` on Pi after first deploy |
 | Write HA REST adapter in `api.js` — replace simulated `rooms[]` with real API call | Dev | Data contract defined; swap `getSensorReadings()` body only; `onRoomsUpdate()` hook ready for Phase 1 polling |
 | Add MQTT broker (Mosquitto) to Pi | Client | Enables future Zigbee devices |
 
