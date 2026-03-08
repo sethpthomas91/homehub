@@ -13,6 +13,9 @@ import {
 // ============================================================
 let activeFloor = 'ALL';
 
+// Interval IDs — retained for cleanup
+let _clockIntervalId, _energyPanelIntervalId, _simulationIntervalId;
+
 // ============================================================
 // CLOCK
 // ============================================================
@@ -20,7 +23,7 @@ function updateClock() {
   document.getElementById('clock').textContent =
     new Date().toLocaleTimeString('en-US', { hour12: false });
 }
-setInterval(updateClock, 1000);
+_clockIntervalId = setInterval(updateClock, 1000);
 updateClock();
 
 // ============================================================
@@ -255,7 +258,7 @@ function updateEnergyPanel() {
   }
 }
 
-setInterval(updateEnergyPanel, 30000);
+_energyPanelIntervalId = setInterval(updateEnergyPanel, 30000);
 
 // ============================================================
 // FLOOR FILTER BUTTONS
@@ -275,7 +278,7 @@ document.querySelector('.floor-btn[data-floor="ALL"]').classList.add('active');
 // ============================================================
 // SIMULATION (replace with real HA polling in Phase 1)
 // ============================================================
-setInterval(() => {
+_simulationIntervalId = setInterval(() => {
   rooms.forEach(r => {
     r.temp  = Math.round((r.temp  + (Math.random() - 0.5) * 0.4) * 10) / 10;
     r.humid = Math.round(Math.max(30, Math.min(85, r.humid + (Math.random() - 0.5) * 0.6)) * 10) / 10;
@@ -607,3 +610,9 @@ function buildSensorNetworkTable() {
 // ============================================================
 updateEnergyPanel();
 initHistory();
+
+export function destroyDashboard() {
+  if (_clockIntervalId)       { clearInterval(_clockIntervalId);       _clockIntervalId       = null; }
+  if (_energyPanelIntervalId) { clearInterval(_energyPanelIntervalId); _energyPanelIntervalId = null; }
+  if (_simulationIntervalId)  { clearInterval(_simulationIntervalId);  _simulationIntervalId  = null; }
+}

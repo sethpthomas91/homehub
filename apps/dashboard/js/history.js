@@ -9,6 +9,7 @@ import { rooms, getSensorReadings, getThermalDelta } from './api.js';
 const HISTORY_KEY  = 'homehub-history-v1';
 const LOG_INTERVAL = 5 * 60 * 1000; // 5 minutes
 let   historyData  = [];             // [{ts, rooms:[{name,floor,temp,humid}]}]
+let   _snapshotIntervalId = null;
 
 export let activeDays       = 7;
 export let activeRoomFilter = new Set(); // empty = all
@@ -32,8 +33,8 @@ function roomColor(name) {
 
 export async function loadHistory() {
   try {
-    const r = await window.storage.get(HISTORY_KEY);
-    if (r) historyData = JSON.parse(r.value);
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (raw) historyData = JSON.parse(raw);
   } catch(e) { historyData = []; }
 }
 
@@ -44,14 +45,18 @@ export async function saveSnapshot() {
   };
   historyData.push(snapshot);
   if (historyData.length > 25920) historyData.splice(0, historyData.length - 25920);
-  try { await window.storage.set(HISTORY_KEY, JSON.stringify(historyData)); } catch(e) {}
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(historyData)); } catch(e) {}
 }
 
 export function initHistory() {
   loadHistory().then(() => {
     saveSnapshot();
-    setInterval(saveSnapshot, LOG_INTERVAL);
+    _snapshotIntervalId = setInterval(saveSnapshot, LOG_INTERVAL);
   });
+}
+
+export function destroyHistory() {
+  if (_snapshotIntervalId) { clearInterval(_snapshotIntervalId); _snapshotIntervalId = null; }
 }
 
 // ============================================================
@@ -351,6 +356,8 @@ export function renderRoomFilterBtns(onFilterChange) {
 // MAIN HISTORY PAGE RENDER
 // ============================================================
 export function renderHistoryPage() {
+  const testCanvas = document.getElementById('tempChart');
+  if (!testCanvas || testCanvas.offsetHeight === 0) return;
   const useFloorDefault = activeRoomFilter.size === 0;
   const tempDs  = useFloorDefault ? buildFloorDatasets('temp')  : buildDatasets('temp',  activeRoomFilter);
   const humidDs = useFloorDefault ? buildFloorDatasets('humid') : buildDatasets('humid', activeRoomFilter);
