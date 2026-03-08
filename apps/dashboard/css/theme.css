@@ -13,4 +13,17 @@
   --dim: #7a9ab0;
   --hot: #ff4444;
   --cold: #4488ff;
+
+  --success:        #33dd88;
+  --success-rgb:    51, 221, 136;
+  --warning-color:  #ffbb00;
+  --warning-rgb:    255, 187, 0;
+  --danger:         #ff4422;
+  --danger-rgb:     255, 68, 34;
+  --info-muted:     #8aacbe;
+  --purple:         #cc88ff;
+  --floor-top:      #dd8844;
+  --floor-ground:   #33bb88;
+  --floor-basement: #00aacc;
+  --canvas-bg:      #0d1520;
 }

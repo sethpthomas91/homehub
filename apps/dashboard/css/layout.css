@@ -66,7 +66,7 @@ body::before {
 
 /* CENTER - 3D CANVAS */
 .center-canvas {
-  background: #0d1520;
+  background: var(--canvas-bg);
   position: relative;
   overflow: hidden;
   grid-row: 3;
