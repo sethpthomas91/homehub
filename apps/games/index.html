@@ -197,7 +197,15 @@
       font-size: 0.9rem;
       color: var(--accent);
       letter-spacing: 0.15em;
-      margin-bottom: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .v-time {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.6rem;
+      color: var(--accent3);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
     }
 
     .v-msg {
@@ -281,6 +289,7 @@
   <div class="victory-box">
     <div class="v-date" id="v-date"></div>
     <div class="v-title" id="v-title"></div>
+    <div class="v-time" id="v-time"></div>
     <div class="v-msg">Puzzle complete. Well done.</div>
     <button id="v-dismiss">Review grid</button>
   </div>
@@ -375,7 +384,7 @@ let ROWS, COLS;
 let puzzle, cellNums, words, cellWordMap;
 let selectedCell = null;
 let direction = 'across';
-let state; // { puzzleIndex, solvedBy, letters }
+let state; // { puzzleIndex, solvedBy, letters, startedAt, solvedAt }
 let victoryTriggered = false;
 let lastKeydownWasLetter = false;
 
@@ -387,7 +396,9 @@ function saveState() {
   localStorage.setItem(key, JSON.stringify({
     puzzleIndex: state.puzzleIndex,
     solvedBy: state.solvedBy,
-    letters: state.letters
+    letters: state.letters,
+    startedAt: state.startedAt,
+    solvedAt: state.solvedAt
   }));
 }
 
@@ -396,10 +407,16 @@ function loadState(puzzleIndex) {
   try {
     const data = JSON.parse(localStorage.getItem(key));
     if (data && data.puzzleIndex === puzzleIndex) {
-      return { puzzleIndex, solvedBy: data.solvedBy || null, letters: data.letters || {} };
+      return {
+        puzzleIndex,
+        solvedBy: data.solvedBy || null,
+        letters: data.letters || {},
+        startedAt: data.startedAt || null,
+        solvedAt: data.solvedAt || null
+      };
     }
   } catch (_) {}
-  return { puzzleIndex, solvedBy: null, letters: {} };
+  return { puzzleIndex, solvedBy: null, letters: {}, startedAt: null, solvedAt: null };
 }
 
 // ---------------------------------------------------------------------------
@@ -488,10 +505,16 @@ function onClueClick(word) {
 
 function handleLetter(letter) {
   if (selectedCell === null) return;
+  if (!state.startedAt) {
+    state.startedAt = Date.now();
+    saveState();
+  }
   state.letters[selectedCell] = letter;
   saveState();
   if (isPuzzleSolved() && !victoryTriggered) {
     victoryTriggered = true;
+    state.solvedAt = Date.now();
+    saveState();
     render();
     setTimeout(showVictory, 350);
     return;
@@ -576,12 +599,26 @@ function setupMobileInput() {
 }
 
 // ---------------------------------------------------------------------------
+// Time helper
+// ---------------------------------------------------------------------------
+function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+// ---------------------------------------------------------------------------
 // Victory
 // ---------------------------------------------------------------------------
 function showVictory() {
   const dateStr = getDateString();
   document.getElementById('v-date').textContent = dateStr;
   document.getElementById('v-title').textContent = puzzle.title;
+  const elapsedMs = state.solvedAt && state.startedAt ? state.solvedAt - state.startedAt : null;
+  document.getElementById('v-time').textContent = elapsedMs !== null ? formatTime(elapsedMs) : '--:--';
+  const msg = elapsedMs !== null && elapsedMs > 3 * 60 * 1000 ? 'Pathetic.' : 'Puzzle complete. Well done.';
+  document.querySelector('.v-msg').textContent = msg;
   document.getElementById('victory').classList.add('show');
 }
 
@@ -730,6 +767,11 @@ function init() {
   }
 
   render();
+
+  if (state.solvedAt) {
+    victoryTriggered = true;
+    showVictory();
+  }
 }
 
 init();

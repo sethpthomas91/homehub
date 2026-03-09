@@ -1,5 +1,5 @@
 # HomeHub Games — Project Document
-> Last updated: 2026-03-08 | Status: **Active — Phase 1**
+> Last updated: 2026-03-09 | Status: **Active — Phase 1**
 > Served at: `http://homehub.local/games`
 
 ---
@@ -26,7 +26,8 @@ A locally hosted games section of the HomeHub Pi. One game per day, shared by th
 | Dynamic grid sizing | ✅ Done | Any size up to `MAX_GRID_SIZE` (9); `rows`/`cols` required puzzle fields |
 | 30 original puzzles | **In progress** | Themed, verified grids; variable size allowed |
 | Daily puzzle mechanic | **In progress** | Date-based, no skipping ahead |
-| Progress persistence | **In progress** | localStorage, clears at midnight |
+| Progress persistence | **In progress** | localStorage, clears at midnight; solve time persisted |
+| Solve time display | ✅ Done | Timer starts on first letter, shown in victory modal; re-shown on reload |
 | Mobile/tablet layout | **In progress** | Tap to select, keyboard friendly |
 
 ---
