@@ -19,6 +19,18 @@ if [ ! -d "./apps" ]; then
   exit 1
 fi
 
+# Build puzzles.js if manifest.json exists
+if [ -f "./apps/games/puzzles/manifest.json" ]; then
+  echo "→ Building puzzles.js from manifest..."
+  node scripts/puz-to-js.js
+  if [ $? -ne 0 ]; then
+    echo "✗ puz-to-js.js failed. Fix errors above before deploying."
+    exit 1
+  fi
+else
+  echo "⚠  No manifest.json found — skipping puzzle build (puzzles.js not updated)"
+fi
+
 if [ ! -f "./$NGINX_CONF" ]; then
   echo "✗ Error: $NGINX_CONF not found. Run this script from the repo root."
   exit 1
