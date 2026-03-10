@@ -1,5 +1,5 @@
 # HomeHub Project — Master Document
-> Last updated: 2026-03-08 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer)
+> Last updated: 2026-03-09 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer)
 > Hardware: ESP32 + DHT22 ordered, awaiting delivery | Repo: GitHub Private
 
 ---
