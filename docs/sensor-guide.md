@@ -56,12 +56,11 @@ docker run -d \
   --restart=unless-stopped \
   --privileged \
   -v /home/sethpthomas91/.homeassistant:/config \
-  -e TZ=America/Vancouver \
+  -e TZ=America/Los_Angeles \
   --network=host \
   ghcr.io/home-assistant/home-assistant:stable
 ```
 
-> Adjust `TZ` to your timezone. Full list at https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 HA will be available at `http://homehub.local:8123`. Complete the onboarding wizard (create account, set location, skip any device discovery for now).
 
