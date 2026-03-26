@@ -5,24 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Crossword</title>
   <link rel="stylesheet" href="../dashboard/fonts.css">
+  <link rel="stylesheet" href="../dashboard/css/tokens.css">
   <style>
-    :root {
-      --bg: #0a0c0f;
-      --panel: #111620;
-      --border: #243040;
-      --accent: #00d4ff;
-      --accent3: #39ff14;
-      --text: #c8d8e8;
-      --dim: #7a9ab0;
-      --warn: #ffbe00;
-    }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
+      font-family: var(--font);
       font-weight: 400;
       min-height: 100vh;
       display: flex;
@@ -41,17 +31,18 @@
     }
 
     header h1 {
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font);
       font-size: 1rem;
+      font-weight: 700;
       letter-spacing: 0.25em;
       color: var(--accent);
       text-transform: uppercase;
     }
 
     #puzzle-date {
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font);
       font-size: 0.7rem;
-      color: var(--dim);
+      color: var(--text2);
       letter-spacing: 0.15em;
     }
 
@@ -70,8 +61,8 @@
 
     .cell {
       position: relative;
-      background: var(--panel);
-      border: 1px solid var(--border);
+      background: var(--surface);
+      border: 1px solid var(--surface2);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -84,18 +75,18 @@
     }
 
     .cell.black {
-      background: #060709;
-      border-color: #060709;
+      background: var(--bg);
+      border-color: var(--bg);
       cursor: default;
     }
 
     .cell.highlighted {
-      background: #192130;
-      border-color: #2a3f55;
+      background: var(--accent-bg);
+      border-color: var(--surface2);
     }
 
     .cell.selected {
-      background: #0e1d2d;
+      background: var(--accent-bg);
       border: 2px solid var(--accent);
     }
 
@@ -103,15 +94,16 @@
       position: absolute;
       top: 2px;
       left: 3px;
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font);
       font-size: clamp(0.42rem, 1.4vw, 0.55rem);
-      color: var(--dim);
+      color: var(--text2);
       line-height: 1;
     }
 
     .cell-letter {
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font);
       font-size: clamp(1rem, 3.8vw, 1.5rem);
+      font-weight: 600;
       color: var(--text);
       line-height: 1;
     }
@@ -125,34 +117,35 @@
     }
 
     .clue-panel h2 {
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font);
       font-size: 0.65rem;
+      font-weight: 600;
       letter-spacing: 0.25em;
-      color: var(--dim);
+      color: var(--text2);
       text-transform: uppercase;
       margin-bottom: 0.5rem;
       padding-bottom: 0.4rem;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--surface2);
     }
 
     .clue-item {
       display: flex;
       gap: 0.5rem;
       padding: 0.3rem 0.4rem;
-      border-radius: 2px;
+      border-radius: var(--r-sm);
       cursor: pointer;
       margin-bottom: 0.1rem;
       transition: background 0.1s;
     }
 
-    .clue-item:hover { background: #192130; }
+    .clue-item:hover { background: var(--surface2); }
 
-    .clue-item.active { background: #0e1d2d; }
+    .clue-item.active { background: var(--accent-bg); }
 
     .clue-num {
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font);
       font-size: 0.7rem;
-      color: var(--dim);
+      color: var(--text2);
       min-width: 1.1rem;
       flex-shrink: 0;
       padding-top: 0.05rem;
@@ -167,7 +160,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(10, 12, 15, 0.93);
+      background: rgba(247, 245, 240, 0.93);
       z-index: 100;
       align-items: center;
       justify-content: center;
@@ -176,8 +169,9 @@
     #victory.show { display: flex; }
 
     .victory-box {
-      background: var(--panel);
-      border: 1px solid var(--accent3);
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: var(--r-md);
       padding: 2.5rem 2rem;
       max-width: 340px;
       width: calc(100vw - 2.5rem);
@@ -185,25 +179,27 @@
     }
 
     .v-date {
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font);
       font-size: 0.65rem;
-      color: var(--dim);
+      color: var(--text2);
       letter-spacing: 0.2em;
       margin-bottom: 0.6rem;
     }
 
     .v-title {
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font);
       font-size: 0.9rem;
+      font-weight: 600;
       color: var(--accent);
       letter-spacing: 0.15em;
       margin-bottom: 0.5rem;
     }
 
     .v-time {
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font);
       font-size: 1.6rem;
-      color: var(--accent3);
+      font-weight: 700;
+      color: var(--warm);
       letter-spacing: 0.1em;
       margin-bottom: 0.5rem;
     }
@@ -217,9 +213,10 @@
 
     .victory-box button {
       background: transparent;
-      border: 1px solid var(--accent3);
-      color: var(--accent3);
-      font-family: 'Share Tech Mono', monospace;
+      border: 1px solid var(--accent);
+      border-radius: var(--r-sm);
+      color: var(--accent);
+      font-family: var(--font);
       font-size: 0.75rem;
       letter-spacing: 0.15em;
       padding: 0.6rem 1.5rem;
@@ -229,7 +226,7 @@
     }
 
     .victory-box button:hover {
-      background: rgba(57, 255, 20, 0.08);
+      background: var(--accent-bg);
     }
 
     footer {
@@ -238,9 +235,9 @@
     }
 
     footer a {
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--font);
       font-size: 0.7rem;
-      color: var(--dim);
+      color: var(--text2);
       text-decoration: none;
       letter-spacing: 0.1em;
     }

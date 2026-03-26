@@ -1,422 +1,192 @@
-<!--
-  NGINX WEB ROOT: /var/www/homehub/apps/dashboard/
-  All paths are relative to this directory.
-  If the root is wrong, CSS and JS will 404 silently.
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOME HUB</title>
-<link rel="stylesheet" href="fonts.css">
-<link rel="stylesheet" href="css/theme.css">
-<link rel="stylesheet" href="css/layout.css">
-<link rel="stylesheet" href="css/components.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HomeHub</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="fonts.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); font-family: var(--font); }
+
+    .page {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+    }
+
+    .wordmark {
+      font-size: .75rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      text-decoration: none;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 6px 16px;
+      background: transparent;
+      border: 1px solid var(--surface2);
+      border-radius: 20px;
+      color: var(--text2);
+      font-size: .8rem;
+      font-family: var(--font);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .nav-link:hover { background: var(--surface); }
+
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+    }
+
+    .loc {
+      font-size: .75rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 20px;
+    }
+
+    .temp-row {
+      line-height: 1;
+    }
+
+    .temp {
+      font-size: clamp(5rem, 20vw, 10rem);
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: -.03em;
+    }
+
+    .unit {
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      font-weight: 400;
+      color: var(--text3);
+      vertical-align: super;
+    }
+
+    .cond {
+      font-size: 1rem;
+      color: var(--text2);
+      margin-top: 10px;
+    }
+
+    .range {
+      font-size: .8rem;
+      color: var(--text3);
+      margin-top: 6px;
+    }
+
+    .footer {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .date {
+      font-size: .75rem;
+      color: var(--text3);
+      letter-spacing: .04em;
+    }
+  </style>
 </head>
 <body>
-
-<div class="layout">
-  <!-- HEADER -->
-  <header class="header">
-    <div class="logo">HOME<span>HUB</span></div>
-    <div class="status-item"><div class="status-dot"></div> ONLINE</div>
-    <div class="status-item"><div class="status-dot"></div> 9 SENSORS ACTIVE</div>
-    <div class="status-item" id="headerAlertItem" style="display:none"><div class="status-dot warn"></div> <span id="headerAlertCount">0</span> ALERT</div>
-    <div class="header-status">
-      <div class="status-item">PI v4 · ARM64</div>
-      <div class="time-display" id="clock">--:--:--</div>
-    </div>
-  </header>
-
-  <!-- TAB BAR -->
-  <nav class="tab-bar">
-    <button class="tab-btn active" data-tab="dashboard">⬡ DASHBOARD</button>
-    <button class="tab-btn" data-tab="history">◈ HISTORY</button>
-    <button class="tab-btn" data-tab="system">⚙ SYSTEM</button>
-    <button class="tab-btn" data-tab="solar">◎ SOLAR</button>
-    <button class="tab-btn" data-tab="insights">◉ INSIGHTS</button>
-  </nav>
-
-  <!-- ============================================================
-       SOLAR TAB
-       ============================================================ -->
-  <div id="solarPage">
-
-    <div class="solar-status-banner">
-      <h2>◎ TWO YEARS OF ROOF DATA BEFORE YOUR FIRST INSTALLER QUOTE</h2>
-      <p>Mount ~$75 of sensors on the 2013 addition roof and let them run. Real irradiance on your east and west faces, shadow patterns from that fir to the south, roof surface temperatures across seasons. When installer quotes come in, you'll have the data to verify every production estimate they give you.</p>
+  <div class="page">
+    <div class="topbar">
+      <a class="nav-link" href="/games/">Games</a>
+      <a class="nav-link" href="/system.html">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M17.66 6.34l-1.41 1.41M6.34 17.66l-1.41 1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          System
+        </a>
     </div>
 
-    <!-- LIVE READINGS ROW -->
-    <div class="solar-grid" style="margin-bottom:12px">
-      <div class="solar-card">
-        <div class="solar-card-title">// IRRADIANCE — EAST FACE</div>
-        <div class="solar-face-grid">
-          <div class="solar-face">
-            <div class="solar-face-label east">EAST</div>
-            <div class="solar-face-val pending" id="solar-east-lux">PENDING</div>
-            <div class="solar-face-sub">lux · VEML7700</div>
-          </div>
-          <div class="solar-face">
-            <div class="solar-face-label west">WEST</div>
-            <div class="solar-face-val pending" id="solar-west-lux">PENDING</div>
-            <div class="solar-face-sub">lux · VEML7700</div>
-          </div>
-        </div>
-        <div class="solar-chart-wrap"><canvas id="solarLuxChart"></canvas></div>
+    <div class="hero">
+      <div class="loc">Jovie's Overlook</div>
+      <div class="temp-row">
+        <span class="temp" id="temp">--</span><span class="unit">°F</span>
       </div>
-
-      <div class="solar-card">
-        <div class="solar-card-title">// ROOF CONDITIONS</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-          <div class="solar-metric">
-            <span class="solar-metric-label">SURFACE TEMP</span>
-            <span class="solar-metric-val pending" id="solar-roof-temp">--</span>
-            <span class="solar-metric-sub">DS18B20 · target &lt;50°C</span>
-          </div>
-          <div class="solar-metric">
-            <span class="solar-metric-label">WIND SPEED</span>
-            <span class="solar-metric-val pending" id="solar-wind">--</span>
-            <span class="solar-metric-sub">anemometer · mph</span>
-          </div>
-          <div class="solar-metric">
-            <span class="solar-metric-label">PEAK LUX TODAY</span>
-            <span class="solar-metric-val pending" id="solar-peak-today">--</span>
-            <span class="solar-metric-sub">combined faces</span>
-          </div>
-          <div class="solar-metric">
-            <span class="solar-metric-label">SHADOW EVENTS</span>
-            <span class="solar-metric-val pending" id="solar-shadow-count">--</span>
-            <span class="solar-metric-sub">drops &gt;60% today</span>
-          </div>
-        </div>
-      </div>
+      <div class="cond" id="cond">--</div>
+      <div class="range" id="range">--</div>
     </div>
 
-    <!-- MONTHLY ACCUMULATION + SHADOW LOG -->
-    <div class="solar-grid" style="margin-bottom:12px">
-      <div class="solar-card">
-        <div class="solar-card-title">// MONTHLY IRRADIANCE ACCUMULATION</div>
-        <div class="solar-timeline" id="solarMonthlyTimeline">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--dim);padding:8px 0">
-            No data yet — populates after first full month of logging.
-          </div>
-        </div>
-      </div>
-
-      <div class="solar-card">
-        <div class="solar-card-title">// SHADOW EVENT LOG</div>
-        <div class="solar-shadow-log" id="solarShadowLog">
-          <div class="solar-shadow-row"><span>Awaiting sensor data</span><span class="pending">--</span></div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim);padding-top:8px;line-height:1.7">
-            Shadow events detected when lux drops &gt;60%<br>
-            on a clear day. Logs time, duration, face affected.<br>
-            Tree at ~120ft south — winter shading expected.
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PROJECTION + HARDWARE -->
-    <div class="solar-grid" style="margin-bottom:12px">
-      <div class="solar-card">
-        <div class="solar-card-title">// 2-YEAR PROJECTION (UPDATES WITH REAL DATA)</div>
-        <!-- ENVIRONMENTAL IMPACT HERO -->
-        <div style="background:rgba(51,221,136,0.06);border:1px solid rgba(51,221,136,0.15);border-left:4px solid #33dd88;padding:12px 14px;margin-bottom:14px;border-radius:2px">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;color:#33dd88;letter-spacing:1px;margin-bottom:8px;text-transform:uppercase">Estimated Annual Environmental Impact</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-            <div class="solar-metric">
-              <span class="solar-metric-label">GRID POWER OFFSET</span>
-              <span class="solar-metric-val" style="font-size:20px;color:#33dd88">5,500–6,500</span>
-              <span class="solar-metric-sub">kWh / year kept off grid</span>
-            </div>
-            <div class="solar-metric">
-              <span class="solar-metric-label">CO₂ AVOIDED</span>
-              <span class="solar-metric-val" style="font-size:20px;color:#33dd88">~2.5–3 t</span>
-              <span class="solar-metric-sub">tonnes CO₂ / yr · SCL grid mix</span>
-            </div>
-            <div class="solar-metric">
-              <span class="solar-metric-label">EQUIVALENT TO</span>
-              <span class="solar-metric-val" style="font-size:20px;color:#33dd88">~6,500</span>
-              <span class="solar-metric-sub">miles not driven per year</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- FINANCIAL -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
-          <div class="solar-metric">
-            <span class="solar-metric-label">YOUR USAGE</span>
-            <span class="solar-metric-val" style="font-size:18px">~8,800</span>
-            <span class="solar-metric-sub">kWh / yr · $120/mo</span>
-          </div>
-          <div class="solar-metric">
-            <span class="solar-metric-label">GRID OFFSET</span>
-            <span class="solar-metric-val" style="font-size:18px;color:#ffaa44">65–70%</span>
-            <span class="solar-metric-sub">good year, pre-tree data</span>
-          </div>
-          <div class="solar-metric">
-            <span class="solar-metric-label">SYSTEM SIZE</span>
-            <span class="solar-metric-val" style="font-size:18px">~6 kW</span>
-            <span class="solar-metric-sub">east + west split roof</span>
-          </div>
-          <div class="solar-metric">
-            <span class="solar-metric-label">INSTALL COST EST</span>
-            <span class="solar-metric-val" style="font-size:18px;color:#ffaa44">$20–25k</span>
-            <span class="solar-metric-sub">before incentives</span>
-          </div>
-          <div class="solar-metric">
-            <span class="solar-metric-label">FINANCIAL PAYBACK</span>
-            <span class="solar-metric-val" style="font-size:18px;color:#8aacbe">18–22 yr</span>
-            <span class="solar-metric-sub">SCL monthly netting</span>
-          </div>
-          <div class="solar-metric">
-            <span class="solar-metric-label">DATA CONFIDENCE</span>
-            <span class="solar-metric-val pending" id="solar-confidence">0%</span>
-            <span class="solar-metric-sub">months logged / 24</span>
-          </div>
-        </div>
-        <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:500;color:var(--dim);line-height:1.7;border-top:1px solid var(--border);padding-top:10px">
-          Financial payback is secondary to environmental values — Seattle City Light is already a low-carbon grid.
-          Real irradiance data will refine these estimates. Tree shading impact calculated from shadow event log.
-        </div>
-      </div>
-
-      <div class="solar-card">
-        <div class="solar-card-title">// HARDWARE SHOPPING LIST</div>
-        <ul class="solar-hw-list">
-          <li class="solar-hw-item">
-            <span class="solar-hw-price">$10</span>
-            <div><div class="solar-hw-name">2× VEML7700 lux sensor</div><div class="solar-hw-purpose">East + west face irradiance · Adafruit #4162</div></div>
-          </li>
-          <li class="solar-hw-item">
-            <span class="solar-hw-price">$4</span>
-            <div><div class="solar-hw-name">DS18B20 waterproof temp probe</div><div class="solar-hw-purpose">Roof surface temp · efficiency impact above 50°C</div></div>
-          </li>
-          <li class="solar-hw-item">
-            <span class="solar-hw-price">$12</span>
-            <div><div class="solar-hw-name">Radiation shield / solar screen</div><div class="solar-hw-purpose">Protects DS18B20 from direct sun bias</div></div>
-          </li>
-          <li class="solar-hw-item">
-            <span class="solar-hw-price">$3</span>
-            <div><div class="solar-hw-name">DS3231 RTC module</div><div class="solar-hw-purpose">Accurate timestamps without network · critical for shadow mapping</div></div>
-          </li>
-          <li class="solar-hw-item">
-            <span class="solar-hw-price">$25</span>
-            <div><div class="solar-hw-name">Cup anemometer (ESP32 compatible)</div><div class="solar-hw-purpose">Wind exposure · pylon roof has higher exposure than conventional</div></div>
-          </li>
-          <li class="solar-hw-item">
-            <span class="solar-hw-price">$20</span>
-            <div><div class="solar-hw-name">Weatherproof boxes, silicone, brackets</div><div class="solar-hw-purpose">Flush mount at roof pitch · wire to attic ESP32</div></div>
-          </li>
-        </ul>
-        <div class="solar-hw-total"><span>TOTAL EST.</span><span>~$74</span></div>
-      </div>
-    </div>
-
-  </div>
-  <!-- END SOLAR TAB -->
-
-  <!-- INSIGHTS TAB -->
-  <div id="insightsPage">
-    <div class="insights-header">
-      <h2>◉ INSIGHTS</h2>
-      <span class="insights-header-sub">What the sensors have been seeing — updated every 30s</span>
-    </div>
-    <div id="insightsCatComfort"    class="insights-cat icat-comfort"></div>
-    <div id="insightsCatStructural" class="insights-cat icat-structural"></div>
-    <div id="insightsCatAirquality" class="insights-cat icat-airquality"></div>
-    <div class="insights-footer">
-      All readings are from simulated sensors. Once real ESP32 + DHT22 nodes are connected via Home Assistant,
-      this tab will log actual conditions with timestamps. A year of this data is a useful starting point
-      for a building science review.
-    </div>
-  </div>
-  <!-- END INSIGHTS TAB -->
-
-  <!-- SYSTEM PAGE -->
-  <div id="systemPage">
-    <div class="section-header">// SYSTEM</div>
-    <div class="sys-row"><span class="sys-label">PI CPU</span><span class="sys-val" id="cpu-val">34%</span></div>
-    <div class="sys-row"><span class="sys-label">PI TEMP</span><span class="sys-val warn" id="pi-temp">51°C</span></div>
-    <div class="sys-row"><span class="sys-label">RAM</span><span class="sys-val" id="ram-val">--</span></div>
-    <div class="sys-row"><span class="sys-label">UPTIME</span><span class="sys-val" id="uptime">--</span></div>
-    <div class="sys-row"><span class="sys-label">LAST SYNC</span><span class="sys-val" id="last-sync">--</span></div>
-
-    <div class="section-header" style="margin-top:16px">// HOME ASSISTANT</div>
-    <div class="sys-row"><span class="sys-label">HA VERSION</span><span class="sys-val">N/A</span></div>
-    <div class="sys-row"><span class="sys-label">ZIGBEE</span><span class="sys-val">○ PENDING</span></div>
-    <div class="sys-row"><span class="sys-label">MQTT</span><span class="sys-val ss-pending">○ PENDING</span></div>
-
-    <div class="section-header" style="margin-top:16px">// SENSOR NETWORK</div>
-    <div id="sensorNetworkTable"></div>
-  </div>
-
-  <!-- HISTORY PAGE -->
-  <div id="historyPage">
-    <div class="history-controls">
-      <span class="hc-label">RANGE</span>
-      <button class="range-btn active" data-days="1">24H</button>
-      <button class="range-btn" data-days="7">7D</button>
-      <button class="range-btn" data-days="30">30D</button>
-      <button class="range-btn" data-days="0">ALL</button>
-      <span class="hc-label" style="margin-left:12px">ROOMS</span>
-      <div id="roomFilterBtns"></div>
-      <span id="dataPointCount" class="hc-label" style="margin-left:auto"></span>
-    </div>
-
-    <div class="history-grid">
-      <div class="chart-card full-width">
-        <div class="chart-title">// TEMPERATURE OVER TIME <span id="tempChartLabel">— ALL ROOMS</span></div>
-        <div class="stat-row" id="tempStats"></div>
-        <div class="chart-canvas-wrap"><canvas id="tempChart"></canvas></div>
-        <div class="chart-legend" id="tempLegend"></div>
-      </div>
-
-      <div class="chart-card full-width">
-        <div class="chart-title">// HUMIDITY OVER TIME <span id="humidChartLabel">— ALL ROOMS</span></div>
-        <div class="stat-row" id="humidStats"></div>
-        <div class="chart-canvas-wrap"><canvas id="humidChart"></canvas></div>
-        <div class="chart-legend" id="humidLegend"></div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-title">// THERMAL DELTA vs OUTDOOR <span style="color:var(--dim)">(SIMULATED OUTDOOR)</span></div>
-        <div class="stat-row" id="deltaStats"></div>
-        <div class="chart-canvas-wrap"><canvas id="deltaChart"></canvas></div>
-        <div class="chart-legend" id="deltaLegend"></div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-title">// SHED HUMIDITY <span style="color:#ff4444">▬ 55% WOOD RISK</span> <span style="color:#ffbb00">▬ 45% MONITOR</span></div>
-        <div class="stat-row" id="shedStats"></div>
-        <div class="chart-canvas-wrap"><canvas id="shedChart"></canvas></div>
-        <div class="data-note" id="shedNote"></div>
-      </div>
-
-      <div class="chart-card full-width">
-        <div class="chart-title">// FLOOR-BY-FLOOR AVG TEMPERATURE COMPARISON</div>
-        <div class="stat-row" id="floorStats"></div>
-        <div class="chart-canvas-wrap"><canvas id="floorChart"></canvas></div>
-        <div class="chart-legend" id="floorLegend"></div>
-      </div>
-    </div>
-
-    <div class="data-note" id="historyDataNote" style="padding:12px 0">
-      Data logged every 5 minutes while dashboard is open. Connect Home Assistant + InfluxDB for continuous background logging.
+    <div class="footer">
+      <div class="date" id="clock"></div>
     </div>
   </div>
 
-  <!-- LEFT PANEL -->
-  <div class="left-panel">
-    <div class="section-header">// ROOM SENSORS</div>
-    <div id="sensorCards"></div>
-  </div>
+  <script>
+    const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-  <!-- CENTER 3D CANVAS -->
-  <div class="center-canvas" id="canvasWrap">
-    <canvas id="threeCanvas"></canvas>
-    <div class="canvas-overlay">
-      <div class="corner-bracket tl"></div>
-      <div class="corner-bracket tr"></div>
-      <div class="corner-bracket bl"></div>
-      <div class="corner-bracket br"></div>
-      <div class="canvas-label">STRUCTURE · 3D VIEW</div>
-      <div style="position:absolute;top:16px;left:16px;font-family:'Share Tech Mono',monospace;font-size:13px;line-height:2;letter-spacing:0.5px;pointer-events:none;">
-        <div style="display:flex;align-items:center;gap:6px;color:#ff9955"><span style="width:10px;height:2px;background:#ff9955;display:inline-block"></span>TOP FLOOR</div>
-        <div style="display:flex;align-items:center;gap:6px;color:#44ddaa"><span style="width:10px;height:2px;background:#44ddaa;display:inline-block"></span>GROUND</div>
-        <div style="display:flex;align-items:center;gap:6px;color:#00d4ff"><span style="width:10px;height:2px;background:#00d4ff;display:inline-block"></span>BASEMENT</div>
-      </div>
-      <button id="terrainToggleBtn" class="terrain-toggle"><span class="toggle-dot">⬡</span> TERRAIN: <span class="toggle-state">OFF</span></button>
-      <button id="thermalToggleBtn" class="terrain-toggle active" style="bottom:52px"><span class="toggle-dot">◈</span> THERMAL: <span class="toggle-state">ON</span></button>
-      <div class="ctrl-hint" id="ctrlHint">DRAG TO ROTATE<br>SCROLL TO ZOOM</div>
-      <div class="floor-selector">
-        <button class="floor-btn" data-floor="ALL">ALL</button>
-        <button class="floor-btn" data-floor="TOP">TOP</button>
-        <button class="floor-btn" data-floor="GROUND">GND</button>
-        <button class="floor-btn" data-floor="BASEMENT">BSMT</button>
-      </div>
-    </div>
-    <div class="room-tooltip" id="tooltip">
-      <div class="tt-name" id="tt-name">ROOM</div>
-      <div class="tt-row"><span>TEMP</span><span class="tt-val" id="tt-temp">--</span></div>
-      <div class="tt-row"><span>HUMIDITY</span><span class="tt-val" id="tt-humid">--</span></div>
-      <div class="tt-row"><span>STATUS</span><span class="tt-val" id="tt-status">--</span></div>
-    </div>
-  </div>
+    function pad(n) { return String(n).padStart(2, '0'); }
 
-  <!-- RIGHT PANEL -->
-  <div class="right-panel">
+    function tick() {
+      const d = new Date();
+      document.getElementById('clock').textContent =
+        DAYS[d.getDay()] + ' \u00b7 ' + MONTHS[d.getMonth()] + ' ' + d.getDate() + ' \u00b7 ' +
+        pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
 
-    <!-- HOUSE STATUS -->
-    <div id="houseStatus"></div>
+    function weatherLabel(code) {
+      if (code === 0) return 'Clear';
+      if (code <= 2) return 'Mostly Clear';
+      if (code === 3) return 'Overcast';
+      if (code === 45 || code === 48) return 'Foggy';
+      if (code >= 51 && code <= 55) return 'Drizzle';
+      if (code >= 61 && code <= 65) return 'Rain';
+      if (code >= 71 && code <= 75) return 'Snow';
+      if (code >= 80 && code <= 82) return 'Showers';
+      if (code === 95) return 'Thunderstorm';
+      return 'Cloudy';
+    }
 
-    <!-- FLOOR SPREAD -->
-    <div class="floor-spread">
-      <div class="floor-spread-label">FLOOR-TO-FLOOR SPREAD</div>
-      <div class="floor-spread-val" id="floorSpreadVal">--°F</div>
-      <div class="floor-spread-detail" id="floorSpreadDetail">TOP vs BASEMENT delta</div>
-    </div>
+    async function fetchWeather() {
+      try {
+        const res = await fetch('/api/weather.json');
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        const cur = data.current;
+        const daily = data.daily;
+        document.getElementById('temp').textContent = Math.round(cur.temperature_2m);
+        document.getElementById('cond').textContent = weatherLabel(cur.weathercode);
+        const hi = Math.round(daily.temperature_2m_max[0]);
+        const lo = Math.round(daily.temperature_2m_min[0]);
+        document.getElementById('range').textContent = 'High ' + hi + '\u00b0 \u00a0\u00b7\u00a0 Low ' + lo + '\u00b0';
+      } catch {
+        document.getElementById('temp').textContent = '--';
+        document.getElementById('cond').textContent = '--';
+        document.getElementById('range').textContent = '--';
+      }
+    }
 
-    <!-- COMFORT -->
-    <div class="health-cat cat-comfort">
-      <div class="health-cat-header">
-        <div class="health-cat-dot"></div>
-        <span class="health-cat-label">COMFORT</span>
-      </div>
-      <div class="health-cat-body"><div id="comfortAlerts"></div></div>
-    </div>
-
-    <!-- STRUCTURAL -->
-    <div class="health-cat cat-structural">
-      <div class="health-cat-header">
-        <div class="health-cat-dot"></div>
-        <span class="health-cat-label">STRUCTURAL</span>
-      </div>
-      <div class="health-cat-body"><div id="structuralAlerts"></div></div>
-    </div>
-
-    <!-- AIR QUALITY -->
-    <div class="health-cat cat-airquality">
-      <div class="health-cat-header">
-        <div class="health-cat-dot"></div>
-        <span class="health-cat-label">AIR QUALITY</span>
-      </div>
-      <div class="health-cat-body"><div id="airqualityAlerts"></div></div>
-    </div>
-
-    <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--dim);margin-top:8px;letter-spacing:0.5px;">OUTDOOR REF: <span id="outdoor-ref" style="color:var(--accent)">-- °F</span> &nbsp;<span class="ss-pending">(SIMULATED)</span></div>
-  </div>
-
-  <!-- BOTTOM BAR -->
-  <div class="bottom-bar">
-    <div class="energy-metric">
-      <span class="em-label">AVG TEMP</span>
-      <span class="em-val" id="em-avg-temp">--°F</span>
-      <span class="em-sub">all rooms</span>
-    </div>
-    <div class="energy-metric">
-      <span class="em-label">AVG HUMIDITY</span>
-      <span class="em-val" id="em-avg-humid">--%</span>
-      <span class="em-sub">all rooms</span>
-    </div>
-    <div class="energy-metric">
-      <span class="em-label">BIGGEST SWING</span>
-      <span class="em-val warn" id="em-max-delta">--°F</span>
-      <span class="em-sub">vs outdoor</span>
-    </div>
-    <div class="energy-metric">
-      <span class="em-label">SHED HUMIDITY</span>
-      <span class="em-val" id="em-shed-humid">--%</span>
-      <span class="em-sub">wood risk &gt;55%</span>
-    </div>
-  </div>
-
-</div>
-
-<script src="three.min.js?v=r128"></script>
-<script type="module" src="js/scene3d.js"></script>
-<script type="module" src="js/dashboard.js"></script>
+    tick();
+    setInterval(tick, 1000);
+    fetchWeather();
+    setInterval(fetchWeather, 15 * 60 * 1000);
+  </script>
 </body>
 </html>
