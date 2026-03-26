@@ -1,0 +1,7 @@
+[Unit]
+Description=Fetch Open-Meteo weather cache
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/var/www/homehub/scripts/fetch_weather.sh

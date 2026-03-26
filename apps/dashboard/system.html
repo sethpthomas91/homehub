@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System — HomeHub</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="fonts.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); font-family: var(--font); }
+
+    .page {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+    }
+
+    .wordmark {
+      font-size: .75rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      text-decoration: none;
+    }
+
+    .back-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 6px 16px;
+      background: transparent;
+      border: 1px solid var(--surface2);
+      border-radius: 20px;
+      color: var(--text2);
+      font-size: .8rem;
+      text-decoration: none;
+      transition: background .15s;
+    }
+
+    .back-link:hover { background: var(--surface); }
+
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      gap: 12px;
+    }
+
+    .section-label {
+      font-size: .75rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 8px;
+    }
+
+    .stats {
+      width: 100%;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--surface2);
+      border-radius: var(--r-md);
+      overflow: hidden;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 14px 18px;
+      background: var(--surface);
+    }
+
+    .stat-label {
+      font-size: .8rem;
+      color: var(--text2);
+    }
+
+    .stat-value {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: -.01em;
+    }
+
+    .footer {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .date {
+      font-size: .75rem;
+      color: var(--text3);
+      letter-spacing: .04em;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <a class="wordmark" href="/">HomeHub</a>
+      <a class="back-link" href="/">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
+          <path d="M19 12H5M5 12l7-7M5 12l7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Home
+      </a>
+    </div>
+
+    <div class="hero">
+      <div class="section-label">Pi System</div>
+      <div class="stats">
+        <div class="stat-row">
+          <span class="stat-label">CPU</span>
+          <span class="stat-value" id="cpu">--</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">CPU Temp</span>
+          <span class="stat-value" id="cpu-temp">--</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">RAM</span>
+          <span class="stat-value" id="ram">--</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Uptime</span>
+          <span class="stat-value" id="uptime">--</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="date" id="clock"></div>
+    </div>
+  </div>
+
+  <script>
+    const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function tick() {
+      const d = new Date();
+      document.getElementById('clock').textContent =
+        DAYS[d.getDay()] + ' \u00b7 ' + MONTHS[d.getMonth()] + ' ' + d.getDate() + ' \u00b7 ' +
+        pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    function formatUptime(seconds) {
+      const d = Math.floor(seconds / 86400);
+      const h = Math.floor((seconds % 86400) / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const parts = [];
+      if (d > 0) parts.push(d + 'd');
+      if (h > 0) parts.push(h + 'h');
+      parts.push(m + 'm');
+      return parts.join(' ');
+    }
+
+    async function fetchSystem() {
+      try {
+        const res = await fetch('/api/system.json');
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        document.getElementById('cpu').textContent = data.cpu_pct + '%';
+        document.getElementById('cpu-temp').textContent = data.cpu_temp_c + '\u00b0C';
+        document.getElementById('ram').textContent =
+          data.ram_used_gb.toFixed(1) + ' / ' + data.ram_total_gb.toFixed(1) + ' GB';
+        document.getElementById('uptime').textContent = formatUptime(data.uptime_seconds);
+      } catch {
+        ['cpu', 'cpu-temp', 'ram', 'uptime'].forEach(id => {
+          document.getElementById(id).textContent = '--';
+        });
+      }
+    }
+
+    tick();
+    setInterval(tick, 1000);
+    fetchSystem();
+    setInterval(fetchSystem, 30 * 1000);
+  </script>
+</body>
+</html>
