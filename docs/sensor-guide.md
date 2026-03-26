@@ -35,28 +35,73 @@ The DHT22 PCB module has 3 labeled pins. Connect them to the ESP32 as follows:
 
 ---
 
-## ESPHome Setup (one-time, on the Pi)
+## Prerequisites
 
-ESPHome runs as a Home Assistant add-on. If HA is already installed on the Pi, this is the fastest path.
+### Step 1 — Install Docker on the Pi
 
-### 1. Install the ESPHome add-on
+SSH into the Pi, then:
 
-In Home Assistant:
-- Go to **Settings → Add-ons → Add-on Store**
-- Search for **ESPHome**
-- Click **Install**, then **Start**
-- Enable **Show in sidebar** for easy access
+```bash
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker sethpthomas91
+```
 
-### 2. Create the secrets file
+Log out and back in so the group change takes effect.
 
-ESPHome uses its own `secrets.yaml` for WiFi credentials. In the ESPHome dashboard, open the editor and create or edit `secrets.yaml`:
+### Step 2 — Install Home Assistant Container
+
+```bash
+docker run -d \
+  --name homeassistant \
+  --restart=unless-stopped \
+  --privileged \
+  -v /home/sethpthomas91/.homeassistant:/config \
+  -e TZ=America/Vancouver \
+  --network=host \
+  ghcr.io/home-assistant/home-assistant:stable
+```
+
+> Adjust `TZ` to your timezone. Full list at https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+
+HA will be available at `http://homehub.local:8123`. Complete the onboarding wizard (create account, set location, skip any device discovery for now).
+
+> **Note:** HA Container does not support add-ons, so ESPHome runs as a separate container (next step).
+
+### Step 3 — Install ESPHome as a Docker container
+
+```bash
+docker run -d \
+  --name esphome \
+  --restart=unless-stopped \
+  -v /home/sethpthomas91/.esphome:/config \
+  --network=host \
+  ghcr.io/esphome/esphome
+```
+
+ESPHome dashboard will be available at `http://homehub.local:6052`.
+
+### Step 4 — Create the ESPHome secrets file
+
+SSH into the Pi and create the secrets file:
+
+```bash
+nano /home/sethpthomas91/.esphome/secrets.yaml
+```
 
 ```yaml
 wifi_ssid: "YourNetworkName"
 wifi_password: "YourWiFiPassword"
+api_encryption_key: "generate-a-32-byte-base64-key-here"
+ota_password: "choose-a-password"
+fallback_password: "choose-a-fallback-password"
 ```
 
-This file is not synced to GitHub — keep it on the Pi only.
+To generate an encryption key:
+```bash
+python3 -c "import base64, os; print(base64.b64encode(os.urandom(32)).decode())"
+```
+
+This file stays on the Pi only — never committed to the repo.
 
 ---
 
@@ -77,12 +122,19 @@ Key things to change per node:
 
 ### First flash (via USB)
 
-The first flash must be done over USB since the device has no firmware yet.
+The first flash must be done over USB. ESPHome is running on the Pi, not your Mac, so use the **Manual Download** method to flash from your Mac's browser.
 
-1. Plug the ESP32 into your Mac via USB-C.
-2. In the ESPHome dashboard, open the device config and click **Install**.
-3. Choose **Plug into this computer** (if running ESPHome locally) or **Manual download** then flash via the ESPHome Web tool at `web.esphome.io`.
-4. Select the correct COM/serial port and flash.
+1. In the ESPHome dashboard (`http://homehub.local:6052`), open the device config and click **Install → Manual download**.
+2. ESPHome will compile the firmware and download a `.bin` file to your Mac.
+3. Plug the ESP32 into your Mac via USB-C.
+4. Open `https://web.esphome.io` in Chrome or Edge (requires a Chromium-based browser).
+5. Click **Connect**, select the ESP32's serial port, then click **Install** and select the downloaded `.bin`.
+
+If the serial port doesn't appear, install the CH340 driver first:
+```bash
+brew install --cask wch-ch34x-usb-serial-driver
+```
+Then unplug and replug the ESP32.
 
 Once the first flash is complete, all future updates can be done **wirelessly over OTA** — no USB needed.
 
