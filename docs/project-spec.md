@@ -199,15 +199,15 @@ These are non-negotiable constraints that apply to every phase and every compone
 
 ## Known Issues / Backlog
 
-| # | Issue | Priority |
-|---|-------|----------|
-| B-1 | Dashboard data is fully simulated — needs real HA API connection | **High** |
-| B-2 | No persistent logging — InfluxDB not yet installed | **High** |
-| B-3 | Shed sensor: DHT22 may underperform in wide temp swings — consider BME280 | Medium |
-| B-4 | No outdoor temp/humid sensor — thermal delta calculations are estimated | Medium |
-| B-5 | CO₂ sensors not yet ordered or installed | Medium |
-| B-6 | Solar tab shows model curves only — sensors not installed | Low |
-| B-7 | No auth on dashboard — fine for local network, note for future | Low |
+| # | Issue | Priority | Notes |
+|---|-------|----------|-------|
+| B-1 | Sensor data display — needs real HA API connection and dashboard UI | **High** | Sensor dashboard removed in PR #19; to be rebuilt once hardware arrives |
+| B-2 | No persistent logging — InfluxDB not yet installed | **High** | |
+| B-3 | Shed sensor: DHT22 may underperform in wide temp swings — consider BME280 | Medium | |
+| B-4 | No outdoor temp/humid sensor — thermal delta calculations not yet possible | Medium | Was estimated in old dashboard; feature removed in PR #19 |
+| B-5 | CO₂ sensors not yet ordered or installed | Medium | |
+| B-6 | Solar monitoring — sensors not installed, no UI | Low | Solar tab removed in PR #19 |
+| B-7 | No auth on dashboard — fine for local network, note for future | Low | |
 
 ---
 
