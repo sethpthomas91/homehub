@@ -1,6 +1,7 @@
+
 # HomeHub Project — Master Document
 > Last updated: 2026-03-26 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer), `fetch_weather.sh` (Pi systemd timer, every 15 min)
-> Hardware: ESP32 + DHT22 ordered, awaiting delivery | Repo: GitHub Private
+> Hardware: ESP32 + DHT22 delivered, first build in progress | Repo: GitHub Private
 
 ---
 
@@ -62,7 +63,7 @@ A self-hosted home environment monitoring system running on a Raspberry Pi. The 
 
 ### Done
 - [x] `home-hub.html` — functional dashboard with modular file structure (Three.js 3D view, sensor cards, history charts, solar tab, insights tab)
-- [x] ESP32 + DHT22 sensor build guide written (`sensor-guide.docx`)
+- [x] ESP32 + DHT22 sensor build guide written (`docs/sensor-guide.md`)
 - [x] ESPHome config defined for temp/humid sensors
 - [x] Room layout modelled in 3D (multi-floor, basement, shed)
 - [x] Simulated sensor data driving all UI panels
@@ -110,7 +111,7 @@ These are non-negotiable constraints that apply to every phase and every compone
 | ✅ Add local preview server | Dev | PR #10 — `scripts/preview.py` mirrors Nginx routing; no deploy needed to preview |
 | Install InfluxDB on Raspberry Pi | Client | InfluxDB 2.x recommended |
 | Configure HA → InfluxDB integration | Client | Built-in HA integration |
-| Build first 2–3 ESP32 + DHT22 sensors | Client | **Waiting on hardware delivery** |
+| Build first 2–3 ESP32 + DHT22 sensors | Client | **Hardware delivered — in progress** |
 | Mount sensors, confirm live readings in HA | Client | |
 | ✅ Refactor dashboard into modular file structure (CSS/JS split) | Dev | PR #13 — `css/`, `js/` dirs; `api.js` data contract; ES modules |
 | ✅ Fix dashboard code quality issues | Dev | PR #14 — localStorage fix, interval IDs, CSS variables, `updateRoom()` / `onRoomsUpdate()` hook, threshold constants centralized |
@@ -232,7 +233,7 @@ These are non-negotiable constraints that apply to every phase and every compone
 
 - ESPHome docs: https://esphome.io
 - Home Assistant: http://homeassistant.local:8123
-- Sensor build guide: `sensor-guide.docx`
+- Sensor build guide: `docs/sensor-guide.md`
 - Dashboard: `home-hub.html`
 - InfluxDB: https://docs.influxdata.com/influxdb/v2/
 - CP2102 driver: Silicon Labs (search "CP2102 Silicon Labs driver")
