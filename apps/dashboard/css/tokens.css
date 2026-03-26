@@ -1,0 +1,36 @@
+/* tokens.css — design system tokens. Light mode is default. */
+
+:root {
+  --bg: #F7F5F0;
+  --surface: #EFECE5;
+  --surface2: #E6E2D8;
+  --text: #2C2820;
+  --text2: #6B6355;
+  --text3: #9E9585;
+  --accent: #5C7A5A;
+  --accent-bg: #EBF2EB;
+  --warm: #C07A3A;
+  --warm-bg: #F7EFE4;
+  --warn: #A85A2A;
+  --warn-bg: #F5EAE0;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --ease: cubic-bezier(.4, 0, .2, 1);
+}
+
+[data-theme="dark"] {
+  --bg: #1C1A17;
+  --surface: #242118;
+  --surface2: #2E2B22;
+  --text: #EDE8DE;
+  --text2: #A89E88;
+  --text3: #6E6758;
+  --accent: #7AA878;
+  --accent-bg: #1E2B1E;
+  --warm: #D4924A;
+  --warm-bg: #2A2016;
+  --warn: #D4824A;
+  --warn-bg: #2A1C12;
+}

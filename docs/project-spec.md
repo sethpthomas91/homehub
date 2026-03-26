@@ -1,5 +1,5 @@
 # HomeHub Project — Master Document
-> Last updated: 2026-03-09 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer)
+> Last updated: 2026-03-26 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer)
 > Hardware: ESP32 + DHT22 ordered, awaiting delivery | Repo: GitHub Private
 
 ---
@@ -69,6 +69,7 @@ A self-hosted home environment monitoring system running on a Raspberry Pi. The 
 - [x] Moved `home-hub.html` into Git repository and defined folder/repo structure (PRs #2–#6)
 - [x] Dashboard refactored into modular structure: `css/theme.css`, `css/layout.css`, `css/components.css`, `js/api.js` (data contract), `js/scene3d.js`, `js/history.js`, `js/dashboard.js` (PR #13)
 - [x] Dashboard code quality pass: `localStorage` fix, interval ID capture, CSS variable extraction, `updateRoom()`/`onRoomsUpdate()` infrastructure, threshold constants centralised (PR #14)
+- [x] Design system migration: warm earth-tone palette, light mode default, `css/tokens.css` created, Three.js removed, SVG floor plan placeholder in center column, all token names updated across dashboard and games pages
 
 ### Not Started
 - See Phase roadmap below

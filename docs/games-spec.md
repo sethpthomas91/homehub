@@ -1,5 +1,5 @@
 # HomeHub Games — Project Document
-> Last updated: 2026-03-09 | Status: **Active — Phase 1**
+> Last updated: 2026-03-26 | Status: **Active — Phase 1**
 > Served at: `http://homehub.local/games`
 
 ---

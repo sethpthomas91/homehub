@@ -10,6 +10,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HOME HUB</title>
 <link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/theme.css">
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/components.css">
@@ -314,36 +315,48 @@
     <div id="sensorCards"></div>
   </div>
 
-  <!-- CENTER 3D CANVAS -->
+  <!-- CENTER — FLOOR PLAN PLACEHOLDER -->
   <div class="center-canvas" id="canvasWrap">
-    <canvas id="threeCanvas"></canvas>
-    <div class="canvas-overlay">
-      <div class="corner-bracket tl"></div>
-      <div class="corner-bracket tr"></div>
-      <div class="corner-bracket bl"></div>
-      <div class="corner-bracket br"></div>
-      <div class="canvas-label">STRUCTURE · 3D VIEW</div>
-      <div style="position:absolute;top:16px;left:16px;font-family:'Share Tech Mono',monospace;font-size:13px;line-height:2;letter-spacing:0.5px;pointer-events:none;">
-        <div style="display:flex;align-items:center;gap:6px;color:#ff9955"><span style="width:10px;height:2px;background:#ff9955;display:inline-block"></span>TOP FLOOR</div>
-        <div style="display:flex;align-items:center;gap:6px;color:#44ddaa"><span style="width:10px;height:2px;background:#44ddaa;display:inline-block"></span>GROUND</div>
-        <div style="display:flex;align-items:center;gap:6px;color:#00d4ff"><span style="width:10px;height:2px;background:#00d4ff;display:inline-block"></span>BASEMENT</div>
-      </div>
-      <button id="terrainToggleBtn" class="terrain-toggle"><span class="toggle-dot">⬡</span> TERRAIN: <span class="toggle-state">OFF</span></button>
-      <button id="thermalToggleBtn" class="terrain-toggle active" style="bottom:52px"><span class="toggle-dot">◈</span> THERMAL: <span class="toggle-state">ON</span></button>
-      <div class="ctrl-hint" id="ctrlHint">DRAG TO ROTATE<br>SCROLL TO ZOOM</div>
-      <div class="floor-selector">
-        <button class="floor-btn" data-floor="ALL">ALL</button>
-        <button class="floor-btn" data-floor="TOP">TOP</button>
-        <button class="floor-btn" data-floor="GROUND">GND</button>
-        <button class="floor-btn" data-floor="BASEMENT">BSMT</button>
-      </div>
-    </div>
-    <div class="room-tooltip" id="tooltip">
-      <div class="tt-name" id="tt-name">ROOM</div>
-      <div class="tt-row"><span>TEMP</span><span class="tt-val" id="tt-temp">--</span></div>
-      <div class="tt-row"><span>HUMIDITY</span><span class="tt-val" id="tt-humid">--</span></div>
-      <div class="tt-row"><span>STATUS</span><span class="tt-val" id="tt-status">--</span></div>
-    </div>
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 400 460"
+         style="display:block;padding:24px;" aria-label="Floor plan placeholder">
+      <!-- Ground floor outline -->
+      <rect x="40" y="60" width="320" height="180" rx="2"
+            fill="var(--surface)" stroke="var(--surface2)" stroke-width="2"/>
+      <!-- Room dividers — ground floor -->
+      <line x1="160" y1="60" x2="160" y2="240" stroke="var(--surface2)" stroke-width="1.5"/>
+      <line x1="280" y1="60" x2="280" y2="240" stroke="var(--surface2)" stroke-width="1.5"/>
+      <line x1="160" y1="150" x2="280" y2="150" stroke="var(--surface2)" stroke-width="1.5"/>
+      <!-- Ground floor room labels -->
+      <text x="100" y="158" text-anchor="middle" font-family="var(--font)" font-size="11"
+            fill="var(--text2)">Living Room</text>
+      <text x="220" y="100" text-anchor="middle" font-family="var(--font)" font-size="11"
+            fill="var(--text2)">Kitchen</text>
+      <text x="220" y="200" text-anchor="middle" font-family="var(--font)" font-size="11"
+            fill="var(--text2)">Dining</text>
+      <text x="340" y="158" text-anchor="middle" font-family="var(--font)" font-size="11"
+            fill="var(--text2)">Office</text>
+      <!-- Floor label -->
+      <text x="200" y="52" text-anchor="middle" font-family="var(--font)" font-size="10"
+            font-weight="600" letter-spacing="2" fill="var(--text3)" text-transform="uppercase">GROUND FLOOR</text>
+
+      <!-- Basement outline -->
+      <rect x="80" y="280" width="240" height="140" rx="2"
+            fill="var(--surface)" stroke="var(--surface2)" stroke-width="2"/>
+      <!-- Room dividers — basement -->
+      <line x1="200" y1="280" x2="200" y2="420" stroke="var(--surface2)" stroke-width="1.5"/>
+      <!-- Basement room labels -->
+      <text x="140" y="355" text-anchor="middle" font-family="var(--font)" font-size="11"
+            fill="var(--text2)">Basement</text>
+      <text x="260" y="355" text-anchor="middle" font-family="var(--font)" font-size="11"
+            fill="var(--text2)">Utility</text>
+      <!-- Basement label -->
+      <text x="200" y="272" text-anchor="middle" font-family="var(--font)" font-size="10"
+            font-weight="600" letter-spacing="2" fill="var(--text3)">BASEMENT</text>
+
+      <!-- Caption -->
+      <text x="200" y="448" text-anchor="middle" font-family="var(--font)" font-size="10"
+            letter-spacing="1" fill="var(--text3)">FLOOR PLAN — MAP COMING NEXT PR</text>
+    </svg>
   </div>
 
   <!-- RIGHT PANEL -->
@@ -415,8 +428,6 @@
 
 </div>
 
-<script src="three.min.js?v=r128"></script>
-<script type="module" src="js/scene3d.js"></script>
 <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>
