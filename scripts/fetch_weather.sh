@@ -9,4 +9,5 @@ URL="https://api.open-meteo.com/v1/forecast\
 DEST=/var/www/homehub/api/weather.json
 TMP=$(mktemp)
 curl -sf --max-time 10 "$URL" -o "$TMP"
+chmod 644 "$TMP"
 mv "$TMP" "$DEST"
