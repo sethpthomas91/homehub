@@ -106,14 +106,15 @@ This file stays on the Pi only — never committed to the repo.
 
 ## ESPHome Device Config
 
-For each new sensor node, create a new config in the ESPHome dashboard (or copy from the template in `esphome/` in this repo).
+Per-node configs are generated locally from the template and are not committed to the repo. Run this from the project root on your Mac:
 
-**Template:** `esphome/sensor-node.yaml`
+```bash
+./scripts/new-sensor.sh living-room
+```
 
-Key things to change per node:
-- `name` — lowercase, hyphens, unique per node (e.g. `living-room-sensor`)
-- `friendly_name` — human-readable label shown in HA
-- `temperature.name` / `humidity.name` — what shows up as the entity name in HA
+This creates `esphome/living-room-sensor.yaml` with the correct names filled in. Then paste the contents into a new device in the ESPHome dashboard at `http://homehub.local:6052`.
+
+The template is `esphome/sensor-node.yaml` — edit that if you need to change something for all future nodes (e.g. GPIO pin, update interval).
 
 ---
 

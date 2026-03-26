@@ -17,6 +17,12 @@ home-assistant_v2.db
 home-assistant.log
 .storage/
 
+# ── ESPHome ─────────────────────────────────────────────────
+# Per-node configs are generated locally via scripts/new-sensor.sh
+# Only the template is committed
+esphome/*.yaml
+!esphome/sensor-node.yaml
+
 # ── OS & editor noise ───────────────────────────────────────
 .DS_Store
 Thumbs.db
