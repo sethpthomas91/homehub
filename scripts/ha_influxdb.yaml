@@ -1,0 +1,27 @@
+# InfluxDB integration setup for Home Assistant
+#
+# STEP 1 — Paste the block below into /config/configuration.yaml and restart HA.
+#           HA will auto-migrate these settings into its UI config and warn you
+#           that YAML configuration is deprecated. That is expected.
+#
+# STEP 2 — After HA restarts and the migration warning appears, remove the
+#           influxdb: block from configuration.yaml and restart HA once more.
+#           The integration will continue working — settings now live in HA's
+#           UI storage (.homeassistant/.storage/).
+#
+# NOTE: override_measurement: sensor puts all readings in one measurement,
+#       queryable by entity_id tag. Do not use default_measurement: state —
+#       that uses the unit (°F, %) as the measurement name, which breaks
+#       multi-sensor queries.
+#
+# Extend entity_globs as new sensors are added (e.g. sensor.bedroom_sensor_*)
+# Verify entity IDs at: http://homehub.local:8123/developer-tools/state
+
+influxdb:
+  host: 127.0.0.1
+  port: 8086
+  database: homehub
+  override_measurement: sensor
+  include:
+    entity_globs:
+      - sensor.office_sensor_*

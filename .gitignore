@@ -22,6 +22,7 @@ home-assistant.log
 # Only the template is committed
 esphome/*.yaml
 !esphome/sensor-node.yaml
+!esphome/office-sensor.yaml
 
 # ── OS & editor noise ───────────────────────────────────────
 .DS_Store

@@ -1,6 +1,6 @@
 
 # HomeHub Project — Master Document
-> Last updated: 2026-03-27 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer), `fetch_weather.sh` (Pi systemd timer, every 15 min)
+> Last updated: 2026-03-27 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer), `fetch_weather.sh` (Pi systemd timer, every 15 min), `fetch_sensors.sh` (Pi systemd timer, every 60s), `sensors_status.sh` (Mac → Pi InfluxDB inspector)
 > Hardware: ESP32 + DHT22 delivered, first sensor active (office) | Repo: GitHub Private
 
 ---
@@ -70,6 +70,9 @@ A self-hosted home environment monitoring system running on a Raspberry Pi. The 
 - [x] Landing page rewrite + weather cache: replaced sensor dashboard with minimal weather landing page; Open-Meteo data cached on Pi every 15 min via `fetch_weather.sh` + systemd timer; browser fetches `/api/weather.json` only — no external runtime calls; dead JS/CSS modules + Three.js removed; standalone `system.html` for Pi stats (CPU, temp, RAM, uptime); `deploy.sh` fixed to create `api/` dir on Pi
 - [x] Pill nav + house dashboard: pill nav on landing page (Weather active, House links to `/house.html`); `house.html` with Cabin section, 4 room cards (Office live, others empty); 2→3-column responsive grid; shared topbar + footer pattern
 - [x] Fix `/house` download bug: changed pill href to `/house.html` (extension-explicit URL); reverted nginx `try_files` to clean `$uri $uri/ =404`; removed `FILE_ROUTES` workaround from `preview.py` (PR #23, PR #24)
+- [x] Live sensor data pipeline: `fetch_sensors.sh` polls HA REST API → `/api/sensors.json` (values rounded to nearest integer); sensors.service + sensors.timer (60s); `house.html` replaced hardcoded data with `fetchSensors()` live fetch + 70s poll; `setup_sensors.sh` one-time Pi installer; ESPHome °F filter added to `office-sensor.yaml`; Office sensor confirmed live at 69°F / 38% humidity
+- [x] InfluxDB setup: `setup_influxdb.sh` installs InfluxDB 1.x and creates `homehub` database; `ha_influxdb.yaml` snippet used to bootstrap HA integration (HA auto-migrates YAML to UI config on first load — remove YAML block after restart); all readings land in single `sensor` measurement, queryable by `entity_id` tag; confirmed writing live data
+- [x] InfluxDB inspector: `influx_check.sh` (on Pi) + `sensors_status.sh` (Mac wrapper) — check latest readings, history, counts, and service health without manual SSH
 
 ### Not Started
 - See Phase roadmap below
@@ -107,12 +110,12 @@ These are non-negotiable constraints that apply to every phase and every compone
 | ✅ Clean up secrets.example.yaml | Dev | PR #5 — removed accidental chat transcript |
 | ✅ Restructure repo for multi-app serving | Dev | PR #6 — apps/, nginx/ in version control, /games placeholder live |
 | ✅ Add local preview server | Dev | PR #10 — `scripts/preview.py` mirrors Nginx routing; no deploy needed to preview |
-| Install InfluxDB on Raspberry Pi | Client | InfluxDB 2.x recommended |
-| Configure HA → InfluxDB integration | Client | Built-in HA integration |
+| ✅ Install InfluxDB on Raspberry Pi | Client | `setup_influxdb.sh` — run on Pi |
+| ✅ Configure HA → InfluxDB integration | Client | `ha_influxdb.yaml` snippet — paste into HA config, HA auto-migrates to UI, remove YAML after |
 | Build first 2–3 ESP32 + DHT22 sensors | Client | **Hardware delivered — in progress** |
 | Mount sensors, confirm live readings in HA | Client | |
 | ✅ Add Pi system stats (CPU/RAM/temp/uptime) — shell script + systemd timer | Dev | `system_stats.sh` writes `/api/system.json` every 30s; dashboard polls it; run `setup_system_stats.sh` on Pi after first deploy |
-| Build sensor dashboard and HA REST adapter | Dev | `api.js` and modular structure removed in PR #19; rebuild from scratch against real HA API |
+| ✅ Build sensor dashboard and HA REST adapter | Dev | `fetch_sensors.sh` + `house.html` live fetch (B-1) |
 | Add MQTT broker (Mosquitto) to Pi | Client | Enables future Zigbee devices |
 
 **Phase 1 exit criteria:** At least 3 real sensors reporting live to the dashboard. History tab logging real data to InfluxDB.
@@ -198,8 +201,8 @@ These are non-negotiable constraints that apply to every phase and every compone
 
 | # | Issue | Priority | Notes |
 |---|-------|----------|-------|
-| B-1 | Sensor data display — needs real HA API connection and dashboard UI | **High** | Sensor dashboard removed in PR #19; to be rebuilt once hardware arrives |
-| B-2 | No persistent logging — InfluxDB not yet installed | **High** | |
+| ~~B-1~~ | ~~Sensor data display~~ | ~~High~~ | ✅ Resolved — `fetch_sensors.sh` + `house.html` live fetch |
+| ~~B-2~~ | ~~No persistent logging — InfluxDB not yet installed~~ | ~~High~~ | ✅ Resolved — `setup_influxdb.sh` + `ha_influxdb.yaml` |
 | B-3 | Shed sensor: DHT22 may underperform in wide temp swings — consider BME280 | Medium | |
 | B-4 | No outdoor temp/humid sensor — thermal delta calculations not yet possible | Medium | Was estimated in old dashboard; feature removed in PR #19 |
 | B-5 | CO₂ sensors not yet ordered or installed | Medium | |
