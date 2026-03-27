@@ -1,7 +1,7 @@
 substitutions:
-  node_name: living-room-sensor
-  friendly_name: Living Room Sensor
-  room_name: Living Room
+  node_name: office-sensor
+  friendly_name: Office Sensor
+  room_name: Office
 
 esphome:
   name: ${node_name}

@@ -1,0 +1,16 @@
+# Add to /config/configuration.yaml in Home Assistant, then restart HA.
+# (Settings → System → Restart in HA UI, or: ha core restart)
+#
+# The entity_globs filter is critical — without it HA writes all hundreds of
+# internal entities to InfluxDB. Extend the glob as new sensors are added.
+#
+# Verify entity IDs at: http://homehub.local:8123/developer-tools/state
+
+influxdb:
+  host: 127.0.0.1
+  port: 8086
+  database: homehub
+  default_measurement: state
+  include:
+    entity_globs:
+      - sensor.office_sensor_*

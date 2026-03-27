@@ -181,36 +181,49 @@
     tick();
     setInterval(tick, 1000);
 
-    const floors = [
-      {
-        name: 'Cabin',
-        rooms: [
-          { name: 'Office',      temp: 68, humidity: 52 },
+    function renderFloors(floors) {
+      const container = document.getElementById('floors');
+      container.innerHTML = '';
+      floors.forEach(floor => {
+        const section = document.createElement('div');
+        section.innerHTML = '<div class="section-label">' + floor.name + '</div>';
+        const grid = document.createElement('div');
+        grid.className = 'room-grid';
+        floor.rooms.forEach(room => {
+          const card = document.createElement('div');
+          card.className = 'room-card';
+          const hasData = room.temp !== null;
+          card.innerHTML =
+            '<div class="room-name">' + room.name + '</div>' +
+            '<div class="room-temp' + (hasData ? '' : ' room-temp--empty') + '">' +
+              (hasData ? room.temp + '\u00b0F' : '\u2014') + '</div>' +
+            '<div class="room-humid' + (hasData ? '' : ' room-humid--empty') + '">' +
+              (hasData ? room.humidity + '% humidity' : '\u2014') + '</div>';
+          grid.appendChild(card);
+        });
+        section.appendChild(grid);
+        container.appendChild(section);
+      });
+    }
+
+    async function fetchSensors() {
+      try {
+        const res = await fetch('/api/sensors.json');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        renderFloors(data.floors);
+      } catch (e) {
+        renderFloors([{ name: 'Cabin', rooms: [
+          { name: 'Office',      temp: null, humidity: null },
           { name: 'Living room', temp: null, humidity: null },
           { name: 'Bedroom',     temp: null, humidity: null },
           { name: 'Bath',        temp: null, humidity: null },
-        ]
+        ]}]);
       }
-    ];
+    }
 
-    floors.forEach(floor => {
-      const section = document.createElement('div');
-      section.innerHTML = `<div class="section-label">${floor.name}</div>`;
-      const grid = document.createElement('div');
-      grid.className = 'room-grid';
-      floor.rooms.forEach(room => {
-        const card = document.createElement('div');
-        card.className = 'room-card';
-        const hasData = room.temp !== null;
-        card.innerHTML =
-          '<div class="room-name">' + room.name + '</div>' +
-          '<div class="room-temp' + (hasData ? '' : ' room-temp--empty') + '">' + (hasData ? room.temp + '\u00b0F' : '\u2014') + '</div>' +
-          '<div class="room-humid' + (hasData ? '' : ' room-humid--empty') + '">' + (hasData ? room.humidity + '% humidity' : '\u2014') + '</div>';
-        grid.appendChild(card);
-      });
-      section.appendChild(grid);
-      document.getElementById('floors').appendChild(section);
-    });
+    fetchSensors();
+    setInterval(fetchSensors, 70000);
   </script>
 </body>
 </html>

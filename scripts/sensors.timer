@@ -1,0 +1,10 @@
+[Unit]
+Description=Refresh sensor cache every 60s
+Requires=sensors.service
+
+[Timer]
+OnBootSec=15
+OnUnitActiveSec=60
+
+[Install]
+WantedBy=timers.target
