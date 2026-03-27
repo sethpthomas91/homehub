@@ -1,6 +1,6 @@
 
 # HomeHub Project — Master Document
-> Last updated: 2026-03-27 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer), `fetch_weather.sh` (Pi systemd timer, every 15 min), `fetch_sensors.sh` (Pi systemd timer, every 60s)
+> Last updated: 2026-03-27 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer), `fetch_weather.sh` (Pi systemd timer, every 15 min), `fetch_sensors.sh` (Pi systemd timer, every 60s), `sensors_status.sh` (Mac → Pi InfluxDB inspector)
 > Hardware: ESP32 + DHT22 delivered, first sensor active (office) | Repo: GitHub Private
 
 ---
@@ -71,7 +71,8 @@ A self-hosted home environment monitoring system running on a Raspberry Pi. The 
 - [x] Pill nav + house dashboard: pill nav on landing page (Weather active, House links to `/house.html`); `house.html` with Cabin section, 4 room cards (Office live, others empty); 2→3-column responsive grid; shared topbar + footer pattern
 - [x] Fix `/house` download bug: changed pill href to `/house.html` (extension-explicit URL); reverted nginx `try_files` to clean `$uri $uri/ =404`; removed `FILE_ROUTES` workaround from `preview.py` (PR #23, PR #24)
 - [x] Live sensor data pipeline: `fetch_sensors.sh` polls HA REST API → `/api/sensors.json` (values rounded to nearest integer); sensors.service + sensors.timer (60s); `house.html` replaced hardcoded data with `fetchSensors()` live fetch + 70s poll; `setup_sensors.sh` one-time Pi installer; ESPHome °F filter added to `office-sensor.yaml`; Office sensor confirmed live at 69°F / 38% humidity
-- [x] InfluxDB setup: `setup_influxdb.sh` installs InfluxDB 1.x and creates `homehub` database; `ha_influxdb.yaml` snippet configures HA → InfluxDB integration with `entity_globs` filter
+- [x] InfluxDB setup: `setup_influxdb.sh` installs InfluxDB 1.x and creates `homehub` database; `ha_influxdb.yaml` snippet appended to HA `configuration.yaml`; HA confirmed writing `sensor.office_sensor_*` readings to InfluxDB on every sensor update
+- [x] InfluxDB inspector: `influx_check.sh` (on Pi) + `sensors_status.sh` (Mac wrapper) — check latest readings, history, counts, and service health without manual SSH
 
 ### Not Started
 - See Phase roadmap below
