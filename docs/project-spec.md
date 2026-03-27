@@ -68,7 +68,8 @@ A self-hosted home environment monitoring system running on a Raspberry Pi. The 
 - [x] Moved `home-hub.html` into Git repository and defined folder/repo structure (PRs #2–#6)
 - [x] Design system migration: warm earth-tone palette, light mode default, `css/tokens.css` created, Three.js removed, all token names updated across dashboard and games pages
 - [x] Landing page rewrite + weather cache: replaced sensor dashboard with minimal weather landing page; Open-Meteo data cached on Pi every 15 min via `fetch_weather.sh` + systemd timer; browser fetches `/api/weather.json` only — no external runtime calls; dead JS/CSS modules + Three.js removed; standalone `system.html` for Pi stats (CPU, temp, RAM, uptime); `deploy.sh` fixed to create `api/` dir on Pi
-- [x] Pill nav + house dashboard: pill nav on landing page (Weather active, House links to `/house`); `house.html` with Cabin section, 4 room cards (Office live, others empty); 2→3-column responsive grid; shared topbar + footer pattern
+- [x] Pill nav + house dashboard: pill nav on landing page (Weather active, House links to `/house.html`); `house.html` with Cabin section, 4 room cards (Office live, others empty); 2→3-column responsive grid; shared topbar + footer pattern
+- [x] Fix `/house` download bug: changed pill href to `/house.html` (extension-explicit URL); reverted nginx `try_files` to clean `$uri $uri/ =404`; removed `FILE_ROUTES` workaround from `preview.py` (PR #23, PR #24)
 
 ### Not Started
 - See Phase roadmap below

@@ -26,10 +26,6 @@ INDEX_FILES = {
     REPO_ROOT / "apps" / "dashboard": "home-hub.html",
 }
 
-FILE_ROUTES = {
-    "/house": REPO_ROOT / "apps" / "dashboard" / "house.html",
-}
-
 MIME_TYPES = {
     ".html":  "text/html; charset=utf-8",
     ".css":   "text/css; charset=utf-8",
@@ -50,22 +46,6 @@ class PreviewHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         # Strip query string
         path = self.path.split("?")[0]
-
-        # Direct file routes (exact URL → specific file)
-        if path in FILE_ROUTES:
-            target = FILE_ROUTES[path]
-            if not target.exists():
-                self._send_error(404, f"Not found: {target.name}")
-                return
-            suffix = target.suffix.lower()
-            content_type = MIME_TYPES.get(suffix, "application/octet-stream")
-            data = target.read_bytes()
-            self.send_response(200)
-            self.send_header("Content-Type", content_type)
-            self.send_header("Content-Length", str(len(data)))
-            self.end_headers()
-            self.wfile.write(data)
-            return
 
         # Match longest prefix first
         root = None
@@ -142,10 +122,10 @@ def main():
     signal.signal(signal.SIGINT, shutdown)
 
     print(f"HomeHub preview server running at {url}")
-    print(f"  /        → apps/dashboard/ (home-hub.html)")
-    print(f"  /house   → apps/dashboard/house.html")
-    print(f"  /games   → apps/games/ (index.html)")
-    print(f"  /dashboard → apps/dashboard/ (cross-path fix)")
+    print(f"  /           → apps/dashboard/ (home-hub.html)")
+    print(f"  /house.html → apps/dashboard/house.html")
+    print(f"  /games      → apps/games/ (index.html)")
+    print(f"  /dashboard  → apps/dashboard/ (cross-path fix)")
     print(f"Press Ctrl+C to stop.\n")
 
     subprocess.Popen(["open", url])
