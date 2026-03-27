@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>House — HomeHub</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="fonts.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); font-family: var(--font); }
+
+    .page {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 6px 16px;
+      background: transparent;
+      border: 1px solid var(--surface2);
+      border-radius: 20px;
+      color: var(--text2);
+      font-size: .8rem;
+      font-family: var(--font);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .nav-link:hover { background: var(--surface); }
+
+    .content {
+      flex: 1;
+      padding: 24px;
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 12px;
+    }
+
+    .room-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (min-width: 768px) {
+      .room-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .room-card {
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .room-name {
+      font-size: .875rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .room-temp {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .room-temp--empty { color: var(--text3); }
+
+    .room-humid {
+      font-size: .75rem;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+
+    .room-humid--empty { color: var(--text3); }
+
+    .pill-nav {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 24px;
+    }
+
+    .pill {
+      padding: 7px 20px;
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 10px;
+      color: var(--text2);
+      font-size: .8rem;
+      font-family: var(--font);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .pill--active {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .footer {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .date {
+      font-size: .75rem;
+      color: var(--text3);
+      letter-spacing: .04em;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <a class="nav-link" href="/games/">Games</a>
+      <a class="nav-link" href="/system.html">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M17.66 6.34l-1.41 1.41M6.34 17.66l-1.41 1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        System
+      </a>
+    </div>
+
+    <div class="content">
+      <div id="floors"></div>
+    </div>
+
+    <div class="pill-nav">
+      <a class="pill" href="/">Weather</a>
+      <span class="pill pill--active">House</span>
+    </div>
+
+    <div class="footer">
+      <div class="date" id="clock"></div>
+    </div>
+  </div>
+
+  <script>
+    const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function tick() {
+      const d = new Date();
+      document.getElementById('clock').textContent =
+        DAYS[d.getDay()] + ' \u00b7 ' + MONTHS[d.getMonth()] + ' ' + d.getDate() + ' \u00b7 ' +
+        pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    tick();
+    setInterval(tick, 1000);
+
+    const floors = [
+      {
+        name: 'Cabin',
+        rooms: [
+          { name: 'Office',      temp: 68, humidity: 52 },
+          { name: 'Living room', temp: null, humidity: null },
+          { name: 'Bedroom',     temp: null, humidity: null },
+          { name: 'Bath',        temp: null, humidity: null },
+        ]
+      }
+    ];
+
+    floors.forEach(floor => {
+      const section = document.createElement('div');
+      section.innerHTML = `<div class="section-label">${floor.name}</div>`;
+      const grid = document.createElement('div');
+      grid.className = 'room-grid';
+      floor.rooms.forEach(room => {
+        const card = document.createElement('div');
+        card.className = 'room-card';
+        const hasData = room.temp !== null;
+        card.innerHTML =
+          '<div class="room-name">' + room.name + '</div>' +
+          '<div class="room-temp' + (hasData ? '' : ' room-temp--empty') + '">' + (hasData ? room.temp + '\u00b0F' : '\u2014') + '</div>' +
+          '<div class="room-humid' + (hasData ? '' : ' room-humid--empty') + '">' + (hasData ? room.humidity + '% humidity' : '\u2014') + '</div>';
+        grid.appendChild(card);
+      });
+      section.appendChild(grid);
+      document.getElementById('floors').appendChild(section);
+    });
+  </script>
+</body>
+</html>
