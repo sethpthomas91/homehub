@@ -109,6 +109,31 @@
       color: var(--text3);
       letter-spacing: .04em;
     }
+
+    .pill-nav {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 24px;
+    }
+
+    .pill {
+      padding: 7px 20px;
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 10px;
+      color: var(--text2);
+      font-size: .8rem;
+      font-family: var(--font);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .pill--active {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
   </style>
 </head>
 <body>
@@ -131,6 +156,11 @@
       </div>
       <div class="cond" id="cond">--</div>
       <div class="range" id="range">--</div>
+    </div>
+
+    <div class="pill-nav">
+      <span class="pill pill--active">Weather</span>
+      <a class="pill" href="/house">House</a>
     </div>
 
     <div class="footer">
