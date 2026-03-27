@@ -10,7 +10,7 @@ influxdb:
   host: 127.0.0.1
   port: 8086
   database: homehub
-  default_measurement: state
+  override_measurement: sensor
   include:
     entity_globs:
       - sensor.office_sensor_*
