@@ -24,8 +24,8 @@ fetch_state() {
 temp_json=$(fetch_state "sensor.office_sensor_office_temperature")
 humid_json=$(fetch_state "sensor.office_sensor_office_humidity")
 
-temp=$(echo "$temp_json"   | python3 -c "import sys,json; print(json.load(sys.stdin).get('state','null'))")
-humid=$(echo "$humid_json" | python3 -c "import sys,json; print(json.load(sys.stdin).get('state','null'))")
+temp=$(echo "$temp_json"   | python3 -c "import sys,json; v=json.load(sys.stdin).get('state'); print(round(float(v)) if v not in (None,'unavailable','unknown') else 'null')")
+humid=$(echo "$humid_json" | python3 -c "import sys,json; v=json.load(sys.stdin).get('state'); print(round(float(v)) if v not in (None,'unavailable','unknown') else 'null')")
 
 if ! echo "$temp"  | grep -qE '^[0-9]+(\.[0-9]+)?$'; then temp="null"; fi
 if ! echo "$humid" | grep -qE '^[0-9]+(\.[0-9]+)?$'; then humid="null"; fi
