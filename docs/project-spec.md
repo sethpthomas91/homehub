@@ -70,7 +70,7 @@ A self-hosted home environment monitoring system running on a Raspberry Pi. The 
 - [x] Landing page rewrite + weather cache: replaced sensor dashboard with minimal weather landing page; Open-Meteo data cached on Pi every 15 min via `fetch_weather.sh` + systemd timer; browser fetches `/api/weather.json` only — no external runtime calls; dead JS/CSS modules + Three.js removed; standalone `system.html` for Pi stats (CPU, temp, RAM, uptime); `deploy.sh` fixed to create `api/` dir on Pi
 - [x] Pill nav + house dashboard: pill nav on landing page (Weather active, House links to `/house.html`); `house.html` with Cabin section, 4 room cards (Office live, others empty); 2→3-column responsive grid; shared topbar + footer pattern
 - [x] Fix `/house` download bug: changed pill href to `/house.html` (extension-explicit URL); reverted nginx `try_files` to clean `$uri $uri/ =404`; removed `FILE_ROUTES` workaround from `preview.py` (PR #23, PR #24)
-- [x] Live sensor data pipeline: `fetch_sensors.sh` polls HA REST API → `/api/sensors.json` (values rounded to nearest integer); sensors.service + sensors.timer (60s); `house.html` replaced hardcoded data with `fetchSensors()` live fetch + 70s poll; `setup_sensors.sh` one-time Pi installer; ESPHome °F filter added to `office-sensor.yaml`; Office sensor confirmed live at 69°F / 38% humidity
+- [x] Live sensor data pipeline: `fetch_sensors.sh` polls HA REST API → `/api/sensors.json` (values rounded to nearest integer); sensors.service + sensors.timer (60s); `house.html` replaced hardcoded data with `fetchSensors()` live fetch + 70s poll; `setup_sensors.sh` one-time Pi installer; ESPHome °F filter added to `office-sensor.yaml`; Office, Living room, and Bedroom sensors confirmed live
 - [x] InfluxDB setup: `setup_influxdb.sh` installs InfluxDB 1.x and creates `homehub` database; `ha_influxdb.yaml` snippet used to bootstrap HA integration (HA auto-migrates YAML to UI config on first load — remove YAML block after restart); all readings land in single `sensor` measurement, queryable by `entity_id` tag; confirmed writing live data
 - [x] InfluxDB inspector: `influx_check.sh` (on Pi) + `sensors_status.sh` (Mac wrapper) — check latest readings, history, counts, and service health without manual SSH
 
@@ -215,9 +215,9 @@ These are non-negotiable constraints that apply to every phase and every compone
 
 | Sensor | Location | Status | Hardware |
 |--------|----------|--------|----------|
-| ESP32 + DHT22 | Living Room | **Planned** | |
+| ESP32 + DHT22 | Living Room | **Active** | GPIO16 |
 | ESP32 + DHT22 | Kitchen | **Planned** | |
-| ESP32 + DHT22 | Master Bedroom | **Planned** | |
+| ESP32 + DHT22 | Master Bedroom | **Active** | GPIO16 |
 | ESP32 + DHT22 | Office | **Active** | GPIO16, right side pin 12 |
 | ESP32 + DHT22 | Shed | **Planned** | Consider BME280 instead |
 | ESP32 + DHT22 | Tenant Room | **Planned** | |
