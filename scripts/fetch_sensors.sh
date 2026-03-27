@@ -21,14 +21,16 @@ fetch_state() {
     "$HA_URL/api/states/$1"
 }
 
-temp_json=$(fetch_state "sensor.office_sensor_office_temperature")
-humid_json=$(fetch_state "sensor.office_sensor_office_humidity")
+parse() {
+  python3 -c "import sys,json; v=json.load(sys.stdin).get('state'); print(round(float(v)) if v not in (None,'unavailable','unknown') else 'null')"
+}
 
-temp=$(echo "$temp_json"   | python3 -c "import sys,json; v=json.load(sys.stdin).get('state'); print(round(float(v)) if v not in (None,'unavailable','unknown') else 'null')")
-humid=$(echo "$humid_json" | python3 -c "import sys,json; v=json.load(sys.stdin).get('state'); print(round(float(v)) if v not in (None,'unavailable','unknown') else 'null')")
-
-if ! echo "$temp"  | grep -qE '^[0-9]+(\.[0-9]+)?$'; then temp="null"; fi
-if ! echo "$humid" | grep -qE '^[0-9]+(\.[0-9]+)?$'; then humid="null"; fi
+office_temp=$(fetch_state  "sensor.office_sensor_office_temperature"                       | parse)
+office_humid=$(fetch_state "sensor.office_sensor_office_humidity"                          | parse)
+living_temp=$(fetch_state  "sensor.cabin_living_sensor_cabin_living_temperature"           | parse)
+living_humid=$(fetch_state "sensor.cabin_living_sensor_cabin_living_humidity"              | parse)
+bedroom_temp=$(fetch_state "sensor.main_bedroom_sensor_main_bedroom_temperature"           | parse)
+bedroom_humid=$(fetch_state "sensor.main_bedroom_sensor_main_bedroom_humidity"             | parse)
 
 generated_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 mkdir -p "$OUT_DIR"
@@ -40,10 +42,10 @@ cat > "$TMP_FILE" <<EOF
     {
       "name": "Cabin",
       "rooms": [
-        { "name": "Office",      "temp": $temp, "humidity": $humid },
-        { "name": "Living room", "temp": null,  "humidity": null },
-        { "name": "Bedroom",     "temp": null,  "humidity": null },
-        { "name": "Bath",        "temp": null,  "humidity": null }
+        { "name": "Office",      "temp": $office_temp,   "humidity": $office_humid },
+        { "name": "Living room", "temp": $living_temp,   "humidity": $living_humid },
+        { "name": "Bedroom",     "temp": $bedroom_temp,  "humidity": $bedroom_humid },
+        { "name": "Bath",        "temp": null,           "humidity": null }
       ]
     }
   ]

@@ -24,4 +24,5 @@ influxdb:
   override_measurement: sensor
   include:
     entity_globs:
-      - sensor.office_sensor_*
+      - sensor.*_sensor_*_temperature
+      - sensor.*_sensor_*_humidity
