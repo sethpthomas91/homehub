@@ -219,7 +219,7 @@ These are non-negotiable constraints that apply to every phase and every compone
 | ESP32 + DHT22 | Living Room | **Planned** | Ordered? |
 | ESP32 + DHT22 | Kitchen | **Planned** | |
 | ESP32 + DHT22 | Master Bedroom | **Planned** | |
-| ESP32 + DHT22 | Office | **Planned** | |
+| ESP32 + DHT22 | Office | **Active** | GPIO16, right side pin 12 |
 | ESP32 + DHT22 | Shed | **Planned** | Consider BME280 instead |
 | ESP32 + DHT22 | Tenant Room | **Planned** | |
 | ESP32 + MH-Z19B | Master Bedroom | **Phase 2** | |

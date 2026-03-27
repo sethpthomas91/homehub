@@ -18,18 +18,24 @@ How to wire, flash, and connect a temperature/humidity sensor node to Home Assis
 
 The DHT22 PCB module has 3 labeled pins. Connect them to the ESP32 as follows:
 
-| DHT22 Module Pin | ESP32 Pin |
-|------------------|-----------|
-| VCC              | 3V3       |
-| GND              | GND       |
-| DAT              | GPIO4     |
+| DHT22 Module Pin | ESP32 Pin | Location (USB port facing down) |
+|------------------|-----------|---------------------------------|
+| **+**            | 3V3       | Left side, pin 1 (top)          |
+| **-**            | GND       | Left side, pin 14               |
+| **out**          | GPIO16    | Right side, pin 12              |
+
+**Board pinout (USB port facing down):**
+
+Left side, top to bottom: 3V3, EN, SVP, SVN, P34, P35, P32, P33, P25, P26, P27, P14, P12, **GND**, P13, SD2, SD3, GND, 5V
+
+Right side, top to bottom: GND, P23, P22, TX, RX, P21, GND, P19, P18, P5, P17, **P16**, P4, P0, P2, P15, SD1, SDD, CLK
 
 **On the breadboard:**
 1. Seat the ESP32 across the center divide so both pin rows are accessible.
 2. Plug the DHT22 module into free breadboard rows nearby.
-3. Run a dupont cable from DHT22 VCC → ESP32 3V3.
-4. Run a dupont cable from DHT22 GND → ESP32 GND.
-5. Run a dupont cable from DHT22 DAT → ESP32 pin labeled **4** (GPIO4).
+3. Run a dupont cable from DHT22 **+** → left side pin 1 (3V3).
+4. Run a dupont cable from DHT22 **-** → left side pin 14 (GND).
+5. Run a dupont cable from DHT22 **out** → right side pin 12 (GPIO16).
 
 > No resistor needed — the PCB module already includes the pull-up resistor on the data line.
 
