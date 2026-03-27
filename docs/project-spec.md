@@ -1,7 +1,7 @@
 
 # HomeHub Project — Master Document
-> Last updated: 2026-03-26 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer), `fetch_weather.sh` (Pi systemd timer, every 15 min)
-> Hardware: ESP32 + DHT22 delivered, first build in progress | Repo: GitHub Private
+> Last updated: 2026-03-27 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer), `fetch_weather.sh` (Pi systemd timer, every 15 min)
+> Hardware: ESP32 + DHT22 delivered, first sensor active (office) | Repo: GitHub Private
 
 ---
 
@@ -62,15 +62,11 @@ A self-hosted home environment monitoring system running on a Raspberry Pi. The 
 ## Current State
 
 ### Done
-- [x] `home-hub.html` — functional dashboard with modular file structure (Three.js 3D view, sensor cards, history charts, solar tab, insights tab)
+- [x] `home-hub.html` — minimal weather landing page (current conditions + forecast); `system.html` for Pi stats (CPU, temp, RAM, uptime)
 - [x] ESP32 + DHT22 sensor build guide written (`docs/sensor-guide.md`)
 - [x] ESPHome config defined for temp/humid sensors
-- [x] Room layout modelled in 3D (multi-floor, basement, shed)
-- [x] Simulated sensor data driving all UI panels
 - [x] Moved `home-hub.html` into Git repository and defined folder/repo structure (PRs #2–#6)
-- [x] Dashboard refactored into modular structure: `css/theme.css`, `css/layout.css`, `css/components.css`, `js/api.js` (data contract), `js/scene3d.js`, `js/history.js`, `js/dashboard.js` (PR #13)
-- [x] Dashboard code quality pass: `localStorage` fix, interval ID capture, CSS variable extraction, `updateRoom()`/`onRoomsUpdate()` infrastructure, threshold constants centralised (PR #14)
-- [x] Design system migration: warm earth-tone palette, light mode default, `css/tokens.css` created, Three.js removed, SVG floor plan placeholder in center column, all token names updated across dashboard and games pages
+- [x] Design system migration: warm earth-tone palette, light mode default, `css/tokens.css` created, Three.js removed, all token names updated across dashboard and games pages
 - [x] Landing page rewrite + weather cache: replaced sensor dashboard with minimal weather landing page; Open-Meteo data cached on Pi every 15 min via `fetch_weather.sh` + systemd timer; browser fetches `/api/weather.json` only — no external runtime calls; dead JS/CSS modules + Three.js removed; standalone `system.html` for Pi stats (CPU, temp, RAM, uptime); `deploy.sh` fixed to create `api/` dir on Pi
 
 ### Not Started
@@ -88,7 +84,7 @@ These are non-negotiable constraints that apply to every phase and every compone
 | **No credentials in the repo** | WiFi passwords, HA API tokens, InfluxDB credentials go in a `secrets.yaml` / `.env` file that is gitignored. A `secrets.example` file (with placeholder values) is committed instead. |
 | **HA analytics off** | Home Assistant's optional analytics/telemetry must be disabled. Verify in Settings → System → General. |
 | **InfluxDB not exposed externally** | Bind to `localhost` or the local network interface only. No public port forwarding. |
-| **No external requests at runtime** | Dashboard must not call any external URLs (Google Fonts, CDNs, etc.) when running. All assets self-hosted. Current `home-hub.html` loads Google Fonts — this must be fixed before production. |
+| **No external requests at runtime** | Dashboard must not call any external URLs (Google Fonts, CDNs, etc.) when running. All assets self-hosted. |
 | **ESP32 nodes talk to local HA only** | ESPHome `api:` config points to local HA instance. No OTA or cloud fallback endpoints. |
 | **Data exports are manual and intentional** | No scheduled or automatic export to any destination. Export is a deliberate action by the homeowner. |
 | **Pi not exposed to the internet** | No port forwarding on the router for Pi services. Remote access (if ever desired) goes through a VPN like WireGuard, not open ports. |
@@ -113,10 +109,8 @@ These are non-negotiable constraints that apply to every phase and every compone
 | Configure HA → InfluxDB integration | Client | Built-in HA integration |
 | Build first 2–3 ESP32 + DHT22 sensors | Client | **Hardware delivered — in progress** |
 | Mount sensors, confirm live readings in HA | Client | |
-| ✅ Refactor dashboard into modular file structure (CSS/JS split) | Dev | PR #13 — `css/`, `js/` dirs; `api.js` data contract; ES modules |
-| ✅ Fix dashboard code quality issues | Dev | PR #14 — localStorage fix, interval IDs, CSS variables, `updateRoom()` / `onRoomsUpdate()` hook, threshold constants centralized |
 | ✅ Add Pi system stats (CPU/RAM/temp/uptime) — shell script + systemd timer | Dev | `system_stats.sh` writes `/api/system.json` every 30s; dashboard polls it; run `setup_system_stats.sh` on Pi after first deploy |
-| Write HA REST adapter in `api.js` — replace simulated `rooms[]` with real API call | Dev | Data contract defined; swap `getSensorReadings()` body only; `onRoomsUpdate()` hook ready for Phase 1 polling |
+| Build sensor dashboard and HA REST adapter | Dev | `api.js` and modular structure removed in PR #19; rebuild from scratch against real HA API |
 | Add MQTT broker (Mosquitto) to Pi | Client | Enables future Zigbee devices |
 
 **Phase 1 exit criteria:** At least 3 real sensors reporting live to the dashboard. History tab logging real data to InfluxDB.
@@ -216,7 +210,7 @@ These are non-negotiable constraints that apply to every phase and every compone
 
 | Sensor | Location | Status | Hardware |
 |--------|----------|--------|----------|
-| ESP32 + DHT22 | Living Room | **Planned** | Ordered? |
+| ESP32 + DHT22 | Living Room | **Planned** | |
 | ESP32 + DHT22 | Kitchen | **Planned** | |
 | ESP32 + DHT22 | Master Bedroom | **Planned** | |
 | ESP32 + DHT22 | Office | **Active** | GPIO16, right side pin 12 |
@@ -232,7 +226,7 @@ These are non-negotiable constraints that apply to every phase and every compone
 ## Reference Links
 
 - ESPHome docs: https://esphome.io
-- Home Assistant: http://homeassistant.local:8123
+- Home Assistant: http://homehub.local:8123
 - Sensor build guide: `docs/sensor-guide.md`
 - Dashboard: `home-hub.html`
 - InfluxDB: https://docs.influxdata.com/influxdb/v2/
