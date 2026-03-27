@@ -1,7 +1,7 @@
 
 # HomeHub Project — Master Document
 > Last updated: 2026-03-27 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer), `fetch_weather.sh` (Pi systemd timer, every 15 min), `fetch_sensors.sh` (Pi systemd timer, every 60s), `sensors_status.sh` (Mac → Pi InfluxDB inspector)
-> Hardware: ESP32 + DHT22 delivered, first sensor active (office) | Repo: GitHub Private
+> Hardware: 3× ESP32 + DHT22 active (Office, Living Room, Master Bedroom) | Repo: GitHub Private
 
 ---
 
@@ -112,13 +112,14 @@ These are non-negotiable constraints that apply to every phase and every compone
 | ✅ Add local preview server | Dev | PR #10 — `scripts/preview.py` mirrors Nginx routing; no deploy needed to preview |
 | ✅ Install InfluxDB on Raspberry Pi | Client | `setup_influxdb.sh` — run on Pi |
 | ✅ Configure HA → InfluxDB integration | Client | `ha_influxdb.yaml` snippet — paste into HA config, HA auto-migrates to UI, remove YAML after |
-| Build first 2–3 ESP32 + DHT22 sensors | Client | **Hardware delivered — in progress** |
-| Mount sensors, confirm live readings in HA | Client | |
+| ✅ Build first 2–3 ESP32 + DHT22 sensors | Client | Office, Living Room, Master Bedroom active |
+| ✅ Mount sensors, confirm live readings in HA | Client | All 3 confirmed live in HA and dashboard |
 | ✅ Add Pi system stats (CPU/RAM/temp/uptime) — shell script + systemd timer | Dev | `system_stats.sh` writes `/api/system.json` every 30s; dashboard polls it; run `setup_system_stats.sh` on Pi after first deploy |
 | ✅ Build sensor dashboard and HA REST adapter | Dev | `fetch_sensors.sh` + `house.html` live fetch (B-1) |
 | Add MQTT broker (Mosquitto) to Pi | Client | Enables future Zigbee devices |
 
 **Phase 1 exit criteria:** At least 3 real sensors reporting live to the dashboard. History tab logging real data to InfluxDB.
+✅ **Exit criteria met** — Office, Living Room, Master Bedroom live on dashboard. InfluxDB logging all sensor data.
 
 ---
 
@@ -178,7 +179,7 @@ These are non-negotiable constraints that apply to every phase and every compone
 | # | Decision | Options | Status |
 |---|----------|---------|--------|
 | 1 | Data API layer | ✅ **Direct HA API** with isolated `api.js` abstraction module. Swap the module later without touching dashboard logic. | **Decided** |
-| 2 | History backend | InfluxDB vs SQLite vs HA recorder | **Leaning InfluxDB** |
+| 2 | History backend | ✅ **InfluxDB 1.x** — installed, logging all entities, all data kept permanently | **Decided** |
 | 3 | Second dashboard | Grafana vs another custom HTML | **Open** |
 | 4 | Shed sensor upgrade | DHT22 (current plan) vs BME280 (recommended for shed) | **Leaning BME280** |
 | 5 | Repo hosting | ✅ **GitHub Private** | **Decided** |
