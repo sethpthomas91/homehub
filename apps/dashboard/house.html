@@ -51,6 +51,10 @@
       margin: 0 auto;
     }
 
+    .floor-section + .floor-section {
+      margin-top: 28px;
+    }
+
     .section-label {
       font-size: .7rem;
       letter-spacing: .1em;
@@ -186,6 +190,7 @@
       container.innerHTML = '';
       floors.forEach(floor => {
         const section = document.createElement('div');
+        section.className = 'floor-section';
         section.innerHTML = '<div class="section-label">' + floor.name + '</div>';
         const grid = document.createElement('div');
         grid.className = 'room-grid';

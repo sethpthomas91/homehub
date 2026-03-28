@@ -4,24 +4,21 @@
 #           HA will auto-migrate these settings into its UI config and warn you
 #           that YAML configuration is deprecated. That is expected.
 #
-# STEP 2 — After HA restarts and the migration warning appears, remove the
-#           influxdb: block from configuration.yaml and restart HA once more.
-#           The integration will continue working — settings now live in HA's
-#           UI storage (.homeassistant/.storage/).
+# STEP 2 — After HA restarts, go to Settings → Devices & Services → InfluxDB → Configure.
+#           Enable "Enable newly added entities" so future sensors log automatically.
+#           Then remove the influxdb: block from configuration.yaml and restart HA again.
+#           The integration will continue working — settings live in HA's UI storage.
 #
-# NOTE: override_measurement: sensor puts all readings in one measurement,
-#       queryable by entity_id tag. Do not use default_measurement: state —
-#       that uses the unit (°F, %) as the measurement name, which breaks
-#       multi-sensor queries.
+# NOTE: The UI config does not support entity filtering (include/exclude).
+#       All HA entities with numeric state values will be logged to InfluxDB.
+#       This is acceptable — queries always filter by entity_id, and keeping
+#       all historical data is useful for long-term analysis.
 #
-# Extend entity_globs as new sensors are added (e.g. sensor.bedroom_sensor_*)
-# Verify entity IDs at: http://homehub.local:8123/developer-tools/state
+# NOTE: YAML config support is removed in HA 2026.9.0. After that version,
+#       only the UI config works. No action needed — UI config is active after Step 2.
 
 influxdb:
   host: 127.0.0.1
   port: 8086
   database: homehub
   override_measurement: sensor
-  include:
-    entity_globs:
-      - sensor.office_sensor_*

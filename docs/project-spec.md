@@ -1,7 +1,7 @@
 
 # HomeHub Project — Master Document
 > Last updated: 2026-03-27 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer), `fetch_weather.sh` (Pi systemd timer, every 15 min), `fetch_sensors.sh` (Pi systemd timer, every 60s), `sensors_status.sh` (Mac → Pi InfluxDB inspector)
-> Hardware: ESP32 + DHT22 delivered, first sensor active (office) | Repo: GitHub Private
+> Hardware: 3× ESP32 + DHT22 active (Office, Living Room, Master Bedroom) | Repo: GitHub Private
 
 ---
 
@@ -70,8 +70,8 @@ A self-hosted home environment monitoring system running on a Raspberry Pi. The 
 - [x] Landing page rewrite + weather cache: replaced sensor dashboard with minimal weather landing page; Open-Meteo data cached on Pi every 15 min via `fetch_weather.sh` + systemd timer; browser fetches `/api/weather.json` only — no external runtime calls; dead JS/CSS modules + Three.js removed; standalone `system.html` for Pi stats (CPU, temp, RAM, uptime); `deploy.sh` fixed to create `api/` dir on Pi
 - [x] Pill nav + house dashboard: pill nav on landing page (Weather active, House links to `/house.html`); `house.html` with Cabin section, 4 room cards (Office live, others empty); 2→3-column responsive grid; shared topbar + footer pattern
 - [x] Fix `/house` download bug: changed pill href to `/house.html` (extension-explicit URL); reverted nginx `try_files` to clean `$uri $uri/ =404`; removed `FILE_ROUTES` workaround from `preview.py` (PR #23, PR #24)
-- [x] Live sensor data pipeline: `fetch_sensors.sh` polls HA REST API → `/api/sensors.json` (values rounded to nearest integer); sensors.service + sensors.timer (60s); `house.html` replaced hardcoded data with `fetchSensors()` live fetch + 70s poll; `setup_sensors.sh` one-time Pi installer; ESPHome °F filter added to `office-sensor.yaml`; Office sensor confirmed live at 69°F / 38% humidity
-- [x] InfluxDB setup: `setup_influxdb.sh` installs InfluxDB 1.x and creates `homehub` database; `ha_influxdb.yaml` snippet used to bootstrap HA integration (HA auto-migrates YAML to UI config on first load — remove YAML block after restart); all readings land in single `sensor` measurement, queryable by `entity_id` tag; confirmed writing live data
+- [x] Live sensor data pipeline: `fetch_sensors.sh` polls HA REST API → `/api/sensors.json` (values rounded to nearest integer); sensors.service + sensors.timer (60s); `house.html` replaced hardcoded data with `fetchSensors()` live fetch + 70s poll; `setup_sensors.sh` one-time Pi installer; ESPHome °F filter added to `office-sensor.yaml`; Office, Living room, and Bedroom sensors confirmed live
+- [x] InfluxDB setup: `setup_influxdb.sh` installs InfluxDB 1.x and creates `homehub` database; `ha_influxdb.yaml` bootstraps HA integration (HA auto-migrates to UI config — remove YAML after restart); UI config has no entity filtering so all numeric entities are logged — intentional, all data kept for long-term history; "Enable newly added entities" ON so new sensors log automatically; YAML support removed in HA 2026.9.0, no action needed before then
 - [x] InfluxDB inspector: `influx_check.sh` (on Pi) + `sensors_status.sh` (Mac wrapper) — check latest readings, history, counts, and service health without manual SSH
 
 ### Not Started
@@ -112,13 +112,14 @@ These are non-negotiable constraints that apply to every phase and every compone
 | ✅ Add local preview server | Dev | PR #10 — `scripts/preview.py` mirrors Nginx routing; no deploy needed to preview |
 | ✅ Install InfluxDB on Raspberry Pi | Client | `setup_influxdb.sh` — run on Pi |
 | ✅ Configure HA → InfluxDB integration | Client | `ha_influxdb.yaml` snippet — paste into HA config, HA auto-migrates to UI, remove YAML after |
-| Build first 2–3 ESP32 + DHT22 sensors | Client | **Hardware delivered — in progress** |
-| Mount sensors, confirm live readings in HA | Client | |
+| ✅ Build first 2–3 ESP32 + DHT22 sensors | Client | Office, Living Room, Master Bedroom active |
+| ✅ Mount sensors, confirm live readings in HA | Client | All 3 confirmed live in HA and dashboard |
 | ✅ Add Pi system stats (CPU/RAM/temp/uptime) — shell script + systemd timer | Dev | `system_stats.sh` writes `/api/system.json` every 30s; dashboard polls it; run `setup_system_stats.sh` on Pi after first deploy |
 | ✅ Build sensor dashboard and HA REST adapter | Dev | `fetch_sensors.sh` + `house.html` live fetch (B-1) |
 | Add MQTT broker (Mosquitto) to Pi | Client | Enables future Zigbee devices |
 
 **Phase 1 exit criteria:** At least 3 real sensors reporting live to the dashboard. History tab logging real data to InfluxDB.
+✅ **Exit criteria met** — Office, Living Room, Master Bedroom live on dashboard. InfluxDB logging all sensor data.
 
 ---
 
@@ -178,7 +179,7 @@ These are non-negotiable constraints that apply to every phase and every compone
 | # | Decision | Options | Status |
 |---|----------|---------|--------|
 | 1 | Data API layer | ✅ **Direct HA API** with isolated `api.js` abstraction module. Swap the module later without touching dashboard logic. | **Decided** |
-| 2 | History backend | InfluxDB vs SQLite vs HA recorder | **Leaning InfluxDB** |
+| 2 | History backend | ✅ **InfluxDB 1.x** — installed, logging all entities, all data kept permanently | **Decided** |
 | 3 | Second dashboard | Grafana vs another custom HTML | **Open** |
 | 4 | Shed sensor upgrade | DHT22 (current plan) vs BME280 (recommended for shed) | **Leaning BME280** |
 | 5 | Repo hosting | ✅ **GitHub Private** | **Decided** |
@@ -215,9 +216,9 @@ These are non-negotiable constraints that apply to every phase and every compone
 
 | Sensor | Location | Status | Hardware |
 |--------|----------|--------|----------|
-| ESP32 + DHT22 | Living Room | **Planned** | |
+| ESP32 + DHT22 | Living Room | **Active** | GPIO16 |
 | ESP32 + DHT22 | Kitchen | **Planned** | |
-| ESP32 + DHT22 | Master Bedroom | **Planned** | |
+| ESP32 + DHT22 | Master Bedroom | **Active** | GPIO16 |
 | ESP32 + DHT22 | Office | **Active** | GPIO16, right side pin 12 |
 | ESP32 + DHT22 | Shed | **Planned** | Consider BME280 instead |
 | ESP32 + DHT22 | Tenant Room | **Planned** | |
