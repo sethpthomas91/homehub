@@ -134,6 +134,85 @@
       border-color: var(--accent);
       color: var(--accent);
     }
+
+    /* Chores summary card */
+    .chores-card {
+      max-width: 340px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: var(--r-md);
+      margin-top: 24px;
+      overflow: hidden;
+    }
+
+    .chores-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--surface2);
+    }
+
+    .chores-card-label {
+      font-size: .68rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text3);
+    }
+
+    .chores-view-all {
+      font-size: .75rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .chores-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--surface2);
+    }
+
+    .chores-row:last-child { border-bottom: none; }
+
+    .chores-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .chores-dot--normal  { background: var(--accent); }
+    .chores-dot--warning { background: var(--warm); }
+    .chores-dot--danger  { background: var(--warn); }
+
+    .chores-name {
+      flex: 1;
+      font-size: .8rem;
+      color: var(--text);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chores-days {
+      font-size: .72rem;
+      flex-shrink: 0;
+    }
+
+    .chores-days--normal  { color: var(--accent); }
+    .chores-days--warning { color: var(--warm); }
+    .chores-days--danger  { color: var(--warn); }
+
+    .chores-empty {
+      padding: 12px 14px;
+      font-size: .78rem;
+      color: var(--text3);
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -156,11 +235,20 @@
       </div>
       <div class="cond" id="cond">--</div>
       <div class="range" id="range">--</div>
+
+      <div class="chores-card" id="chores-card" style="display:none;">
+        <div class="chores-card-header">
+          <span class="chores-card-label">Chores</span>
+          <a class="chores-view-all" href="/chores.html">View All →</a>
+        </div>
+        <div id="chores-rows"></div>
+      </div>
     </div>
 
     <div class="pill-nav">
       <span class="pill pill--active">Weather</span>
       <a class="pill" href="/house.html">House</a>
+      <a class="pill" href="/chores.html">Chores</a>
     </div>
 
     <div class="footer">
@@ -213,10 +301,42 @@
       }
     }
 
+    function choresDaysLabel(c) {
+      if (c.days_remaining > 0)  return 'in ' + c.days_remaining + 'd';
+      if (c.days_remaining === 0) return 'today';
+      return Math.abs(c.days_remaining) + 'd over';
+    }
+
+    async function fetchChores() {
+      try {
+        const res = await fetch('/api/chores');
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        const top = data.slice(0, 5);
+        const rows = document.getElementById('chores-rows');
+        if (!top.length) {
+          rows.innerHTML = '<div class="chores-empty">No chores yet</div>';
+        } else {
+          rows.innerHTML = top.map(c =>
+            '<div class="chores-row">' +
+              '<div class="chores-dot chores-dot--' + c.status + '"></div>' +
+              '<span class="chores-name">' + c.name.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>' +
+              '<span class="chores-days chores-days--' + c.status + '">' + choresDaysLabel(c) + '</span>' +
+            '</div>'
+          ).join('');
+        }
+        document.getElementById('chores-card').style.display = '';
+      } catch {
+        document.getElementById('chores-card').style.display = 'none';
+      }
+    }
+
     tick();
     setInterval(tick, 1000);
     fetchWeather();
     setInterval(fetchWeather, 15 * 60 * 1000);
+    fetchChores();
+    setInterval(fetchChores, 60 * 1000);
   </script>
 </body>
 </html>

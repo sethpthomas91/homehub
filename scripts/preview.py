@@ -17,6 +17,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 ROUTE_TABLE = [
     ("/games",     REPO_ROOT / "apps" / "games"),
+    ("/chores",    REPO_ROOT / "apps" / "dashboard"),
     ("/dashboard", REPO_ROOT / "apps" / "dashboard"),  # cross-path fix for ../dashboard/fonts.css
     ("/",          REPO_ROOT / "apps" / "dashboard"),
 ]
@@ -122,10 +123,11 @@ def main():
     signal.signal(signal.SIGINT, shutdown)
 
     print(f"HomeHub preview server running at {url}")
-    print(f"  /           → apps/dashboard/ (home-hub.html)")
-    print(f"  /house.html → apps/dashboard/house.html")
-    print(f"  /games      → apps/games/ (index.html)")
-    print(f"  /dashboard  → apps/dashboard/ (cross-path fix)")
+    print(f"  /             → apps/dashboard/ (home-hub.html)")
+    print(f"  /house.html   → apps/dashboard/house.html")
+    print(f"  /chores.html  → apps/dashboard/chores.html (Flask required for live API)")
+    print(f"  /games        → apps/games/ (index.html)")
+    print(f"  /dashboard    → apps/dashboard/ (cross-path fix)")
     print(f"Press Ctrl+C to stop.\n")
 
     subprocess.Popen(["open", url])

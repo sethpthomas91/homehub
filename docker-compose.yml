@@ -1,0 +1,20 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/homehub.conf:/etc/nginx/conf.d/default.conf:ro
+      - /var/www/homehub/apps:/var/www/homehub/apps:ro
+      - /var/www/homehub/api:/var/www/homehub/api:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  api:
+    build: ./backend
+    expose:
+      - "5000"
+    volumes:
+      - /var/www/homehub/data:/data
+    restart: unless-stopped
