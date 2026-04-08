@@ -36,8 +36,8 @@ if [ ! -f "./$NGINX_CONF" ]; then
   exit 1
 fi
 
-# Ensure web root exists on the Pi
-ssh "$PI_USER@$PI_HOST" "sudo mkdir -p $WEB_ROOT/apps $WEB_ROOT/api && sudo chown -R $PI_USER $WEB_ROOT/apps $WEB_ROOT/api"
+# Ensure all required directories exist on the Pi
+ssh "$PI_USER@$PI_HOST" "sudo mkdir -p $WEB_ROOT/apps $WEB_ROOT/api $WEB_ROOT/backend $WEB_ROOT/nginx && sudo chown -R $PI_USER $WEB_ROOT"
 
 # Sync all apps to the Pi
 rsync -az --delete apps/ "$PI_USER@$PI_HOST:$WEB_ROOT/apps/"
@@ -52,19 +52,18 @@ ssh "$PI_USER@$PI_HOST" "sudo mkdir -p $WEB_ROOT/scripts && sudo chown -R $PI_US
 rsync -az scripts/ "$PI_USER@$PI_HOST:$WEB_ROOT/scripts/"
 ssh "$PI_USER@$PI_HOST" "chmod +x $WEB_ROOT/scripts/*.sh"
 
-# Install nginx config and reload
-scp "$NGINX_CONF" "$PI_USER@$PI_HOST:/tmp/homehub.conf"
+# Sync Flask backend source
+rsync -az backend/ "$PI_USER@$PI_HOST:$WEB_ROOT/backend/"
 
-ssh "$PI_USER@$PI_HOST" "
-  sudo cp /tmp/homehub.conf /etc/nginx/sites-available/homehub.conf &&
-  sudo ln -sf /etc/nginx/sites-available/homehub.conf /etc/nginx/sites-enabled/homehub.conf &&
-  sudo chown -R www-data:www-data $WEB_ROOT &&
-  sudo chown $PI_USER:www-data $WEB_ROOT/api &&
-  sudo nginx -t && sudo systemctl reload nginx
-"
+# Sync docker-compose.yml and nginx config
+scp docker-compose.yml "$PI_USER@$PI_HOST:$WEB_ROOT/docker-compose.yml"
+scp "$NGINX_CONF" "$PI_USER@$PI_HOST:$WEB_ROOT/nginx/homehub.conf"
+
+# Rebuild and restart Docker Compose stack
+ssh "$PI_USER@$PI_HOST" "docker compose -f $WEB_ROOT/docker-compose.yml up -d --build"
 
 if [ $? -ne 0 ]; then
-  echo "✗ Nginx config or reload failed."
+  echo "✗ Docker Compose restart failed."
   exit 1
 fi
 

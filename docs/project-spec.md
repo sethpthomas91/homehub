@@ -1,6 +1,6 @@
 
 # HomeHub Project — Master Document
-> Last updated: 2026-03-27 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer), `fetch_weather.sh` (Pi systemd timer, every 15 min), `fetch_sensors.sh` (Pi systemd timer, every 60s), `sensors_status.sh` (Mac → Pi InfluxDB inspector)
+> Last updated: 2026-04-08 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer), `fetch_weather.sh` (Pi systemd timer, every 15 min), `fetch_sensors.sh` (Pi systemd timer, every 60s), `sensors_status.sh` (Mac → Pi InfluxDB inspector)
 > Hardware: 3× ESP32 + DHT22 active (Office, Living Room, Master Bedroom) | Repo: GitHub Private
 
 ---
@@ -56,6 +56,8 @@ A self-hosted home environment monitoring system running on a Raspberry Pi. The 
 ```
 
 **Dashboard is stateless** — it reads from InfluxDB/HA API only. Can be replaced with Grafana, a new HTML file, or a React app without touching anything else.
+
+**Serving layer is containerized** — nginx and the Flask chores API run as a Docker Compose stack (`docker-compose.yml`). Existing systemd scripts (sensors, weather, system_stats) write JSON to `/var/www/homehub/api/` on the host; nginx reads that directory via bind mount. Native nginx service is disabled after first deploy.
 
 ---
 
@@ -116,6 +118,7 @@ These are non-negotiable constraints that apply to every phase and every compone
 | ✅ Mount sensors, confirm live readings in HA | Client | All 3 confirmed live in HA and dashboard |
 | ✅ Add Pi system stats (CPU/RAM/temp/uptime) — shell script + systemd timer | Dev | `system_stats.sh` writes `/api/system.json` every 30s; dashboard polls it; run `setup_system_stats.sh` on Pi after first deploy |
 | ✅ Build sensor dashboard and HA REST adapter | Dev | `fetch_sensors.sh` + `house.html` live fetch (B-1) |
+| ✅ Chores tracker + full containerization | Dev | Flask API + SQLite (`backend/`); Docker Compose stack (nginx + api); `chores.html` full page + summary card on home page; `setup_chores.sh` one-time Pi setup; `docs/chores-spec.md` |
 | Add MQTT broker (Mosquitto) to Pi | Client | Enables future Zigbee devices |
 
 **Phase 1 exit criteria:** At least 3 real sensors reporting live to the dashboard. History tab logging real data to InfluxDB.

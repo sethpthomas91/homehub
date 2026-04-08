@@ -50,18 +50,20 @@ This file defines how Claude Code operates in this repo. Follow these rules on e
 
 ## Spec Docs
 
-Two living spec documents live in `docs/`. They are the source of truth for project state.
+Living documents in `docs/` are the source of truth for project state.
 
 | File | Covers |
 |------|--------|
 | `docs/project-spec.md` | Master project spec — phases, architecture, backlog, sensor inventory |
 | `docs/games-spec.md` | Games section — current games, roadmap, future ideas |
+| `docs/runbook.md` | Ops reference — restart, redeploy, fresh Pi setup, troubleshooting |
 
 - **Every PR must include a spec update. No exceptions** — a PR is not complete without it.
+- **If the PR changes how anything is deployed or operated, update `docs/runbook.md` too.**
 - Mark completed tasks with `✅` in roadmap tables or `- [x]` in checklists
 - Update the `Last updated` date at the top of the file whenever it changes
 - If a new decision is made or a backlog item is added, update the spec before closing the PR
-- Before opening a PR, confirm: "did I update the spec?"
+- Before opening a PR, confirm: "did I update the spec?" and "did I update the runbook if needed?"
 
 ---
 

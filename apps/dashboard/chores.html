@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chores — HomeHub</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="fonts.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); font-family: var(--font); }
+
+    .page {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 6px 16px;
+      background: transparent;
+      border: 1px solid var(--surface2);
+      border-radius: 20px;
+      color: var(--text2);
+      font-size: .8rem;
+      font-family: var(--font);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .nav-link:hover { background: var(--surface); }
+
+    .content {
+      flex: 1;
+      padding: 24px;
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 12px;
+    }
+
+    /* Chore list */
+    .chore-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chore-card {
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: var(--r-md);
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    .status-dot--normal  { background: var(--accent); }
+    .status-dot--warning { background: var(--warm); }
+    .status-dot--danger  { background: var(--warn); }
+
+    .chore-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chore-name {
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      display: inline;
+    }
+
+    .chore-name:hover { text-decoration: underline; }
+
+    .chore-days {
+      font-size: .78rem;
+      margin-top: 3px;
+    }
+
+    .chore-days--normal  { color: var(--accent); }
+    .chore-days--warning { color: var(--warm); }
+    .chore-days--danger  { color: var(--warn); }
+
+    .chore-last {
+      font-size: .75rem;
+      color: var(--text3);
+      margin-top: 2px;
+    }
+
+    .chore-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      padding: 6px 14px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--surface2);
+      background: var(--bg);
+      color: var(--text2);
+      font-size: .78rem;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: var(--surface2); }
+
+    .btn--primary {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn--primary:hover { background: var(--accent); color: #fff; }
+
+    .btn--danger {
+      color: var(--warn);
+      border-color: var(--warn-bg);
+    }
+
+    .btn--danger:hover { background: var(--warn-bg); }
+
+    /* User picker */
+    .user-picker {
+      display: none;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .user-picker.open { display: flex; }
+
+    .user-picker select {
+      padding: 5px 8px;
+      border: 1px solid var(--surface2);
+      border-radius: var(--r-sm);
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: .78rem;
+    }
+
+    /* Add chore form */
+    .add-form {
+      margin-top: 20px;
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: var(--r-md);
+      padding: 16px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .form-row input {
+      padding: 7px 10px;
+      border: 1px solid var(--surface2);
+      border-radius: var(--r-sm);
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: .82rem;
+    }
+
+    .form-row input[name="name"] { flex: 1; min-width: 140px; }
+    .form-row input[name="freq"] { width: 90px; }
+
+    /* Manage section */
+    .manage-toggle {
+      margin-top: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--text3);
+      font-size: .78rem;
+      user-select: none;
+    }
+
+    .manage-toggle:hover { color: var(--text2); }
+
+    .manage-section {
+      display: none;
+      margin-top: 12px;
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: var(--r-md);
+      overflow: hidden;
+    }
+
+    .manage-section.open { display: block; }
+
+    .manage-group {
+      padding: 14px 16px;
+    }
+
+    .manage-group + .manage-group {
+      border-top: 1px solid var(--surface2);
+    }
+
+    .manage-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+    }
+
+    .manage-row-label {
+      flex: 1;
+      font-size: .82rem;
+      color: var(--text);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .manage-row input {
+      flex: 1;
+      padding: 5px 8px;
+      border: 1px solid var(--surface2);
+      border-radius: var(--r-sm);
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: .82rem;
+    }
+
+    .add-user-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .add-user-row input {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid var(--surface2);
+      border-radius: var(--r-sm);
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: .82rem;
+    }
+
+    /* History drawer */
+    .drawer-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.35);
+      z-index: 100;
+    }
+
+    .drawer-backdrop.open { display: block; }
+
+    .drawer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 70dvh;
+      background: var(--bg);
+      border-radius: var(--r-lg) var(--r-lg) 0 0;
+      z-index: 101;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform .25s var(--ease);
+    }
+
+    .drawer.open { transform: translateY(0); }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--surface2);
+    }
+
+    .drawer-title {
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .drawer-close {
+      background: none;
+      border: none;
+      color: var(--text3);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      line-height: 1;
+    }
+
+    .drawer-body {
+      overflow-y: auto;
+      padding: 12px 20px 24px;
+      flex: 1;
+    }
+
+    .history-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--surface2);
+      font-size: .82rem;
+    }
+
+    .history-row:last-child { border-bottom: none; }
+
+    .history-user { color: var(--text); font-weight: 500; }
+    .history-date { color: var(--text3); }
+
+    .empty-state {
+      color: var(--text3);
+      font-size: .82rem;
+      text-align: center;
+      padding: 24px 0;
+    }
+
+    /* Pill nav */
+    .pill-nav {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 24px;
+    }
+
+    .pill {
+      padding: 7px 20px;
+      background: var(--surface);
+      border: 1px solid var(--surface2);
+      border-radius: 10px;
+      color: var(--text2);
+      font-size: .8rem;
+      font-family: var(--font);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .pill--active {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .footer {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .date {
+      font-size: .75rem;
+      color: var(--text3);
+      letter-spacing: .04em;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <a class="nav-link" href="/games/">Games</a>
+      <a class="nav-link" href="/system.html">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M17.66 6.34l-1.41 1.41M6.34 17.66l-1.41 1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        System
+      </a>
+    </div>
+
+    <div class="content">
+      <div class="section-label">Chores</div>
+      <div class="chore-list" id="chore-list">
+        <div class="empty-state">Loading…</div>
+      </div>
+
+      <!-- Add chore -->
+      <div class="add-form">
+        <div class="section-label" style="margin-bottom:10px;">Add Chore</div>
+        <div class="form-row">
+          <input name="name" placeholder="Chore name" autocomplete="off">
+          <input name="freq" type="number" min="1" placeholder="Days" autocomplete="off">
+          <button class="btn btn--primary" id="add-chore-btn">Add</button>
+        </div>
+      </div>
+
+      <!-- Manage section -->
+      <div class="manage-toggle" id="manage-toggle">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+          <path id="manage-chevron" d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Manage chores &amp; users
+      </div>
+      <div class="manage-section" id="manage-section">
+        <div class="manage-group">
+          <div class="section-label" style="margin-bottom:8px;">Chores</div>
+          <div id="manage-chores-list"></div>
+        </div>
+        <div class="manage-group">
+          <div class="section-label" style="margin-bottom:8px;">Users</div>
+          <div id="manage-users-list"></div>
+          <div class="add-user-row">
+            <input id="new-user-input" placeholder="New user name" autocomplete="off">
+            <button class="btn btn--primary" id="add-user-btn">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pill-nav">
+      <a class="pill" href="/">Weather</a>
+      <a class="pill" href="/house.html">House</a>
+      <span class="pill pill--active">Chores</span>
+    </div>
+
+    <div class="footer">
+      <div class="date" id="clock"></div>
+    </div>
+  </div>
+
+  <!-- History drawer -->
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <span class="drawer-title" id="drawer-title">History</span>
+      <button class="drawer-close" id="drawer-close">✕</button>
+    </div>
+    <div class="drawer-body" id="drawer-body"></div>
+  </div>
+
+  <script>
+    // ── Clock ────────────────────────────────────────────────────────────
+    const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function tick() {
+      const d = new Date();
+      document.getElementById('clock').textContent =
+        DAYS[d.getDay()] + ' \u00b7 ' + MONTHS[d.getMonth()] + ' ' + d.getDate() + ' \u00b7 ' +
+        pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    tick();
+    setInterval(tick, 1000);
+
+    // ── State ─────────────────────────────────────────────────────────────
+    let chores = [];
+    let users  = [];
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+    function daysLabel(c) {
+      if (c.days_remaining > 1)  return 'Due in ' + c.days_remaining + ' day' + (c.days_remaining === 1 ? '' : 's');
+      if (c.days_remaining === 1) return 'Due tomorrow';
+      if (c.days_remaining === 0) return 'Due today';
+      const over = Math.abs(c.days_remaining);
+      return over + ' day' + (over === 1 ? '' : 's') + ' overdue';
+    }
+
+    function lastLabel(c) {
+      if (!c.last_completed_at) return 'Never completed';
+      const d = new Date(c.last_completed_at);
+      return 'Last: ' + c.last_completed_by + ' \u2014 ' + MONTHS[d.getMonth()] + ' ' + d.getDate();
+    }
+
+    function userOptions() {
+      if (!users.length) return '<option value="">No users — add one below</option>';
+      return '<option value="">Who did it?</option>' +
+        users.map(u => '<option value="' + u.id + '">' + u.name + '</option>').join('');
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────
+    function renderChores() {
+      const list = document.getElementById('chore-list');
+      if (!chores.length) {
+        list.innerHTML = '<div class="empty-state">No chores yet — add one below</div>';
+        return;
+      }
+
+      const userOpts = userOptions();
+      list.innerHTML = chores.map(c => `
+        <div class="chore-card" data-id="${c.id}">
+          <div class="status-dot status-dot--${c.status}"></div>
+          <div class="chore-body">
+            <div class="chore-name" data-history="${c.id}">${escHtml(c.name)}</div>
+            <div class="chore-days chore-days--${c.status}">${daysLabel(c)}</div>
+            <div class="chore-last">${lastLabel(c)}</div>
+          </div>
+          <div class="chore-actions">
+            <button class="btn btn--primary" data-complete="${c.id}">Mark Complete</button>
+            <div class="user-picker" id="picker-${c.id}">
+              <select id="user-select-${c.id}">${userOpts}</select>
+              <button class="btn btn--primary" data-confirm="${c.id}">Done</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderManage() {
+      // Chores manage list
+      const mc = document.getElementById('manage-chores-list');
+      if (!chores.length) {
+        mc.innerHTML = '<div class="empty-state" style="padding:8px 0;">No chores yet</div>';
+      } else {
+        mc.innerHTML = chores.map(c => `
+          <div class="manage-row">
+            <span class="manage-row-label">${escHtml(c.name)}</span>
+            <button class="btn" data-edit-chore="${c.id}" data-name="${escAttr(c.name)}" data-freq="${c.frequency_days}">Edit</button>
+            <button class="btn btn--danger" data-delete-chore="${c.id}">Delete</button>
+          </div>
+        `).join('');
+      }
+
+      // Users manage list
+      const mu = document.getElementById('manage-users-list');
+      if (!users.length) {
+        mu.innerHTML = '<div class="empty-state" style="padding:8px 0;">No users yet</div>';
+      } else {
+        mu.innerHTML = users.map(u => `
+          <div class="manage-row">
+            <span class="manage-row-label">${escHtml(u.name)}</span>
+            <button class="btn btn--danger" data-deactivate-user="${u.id}">Remove</button>
+          </div>
+        `).join('');
+      }
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function escAttr(s) {
+      return String(s).replace(/"/g,'&quot;');
+    }
+
+    // ── API ───────────────────────────────────────────────────────────────
+    async function apiFetch(url, opts) {
+      const res = await fetch(url, opts);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (res.status === 204) return null;
+      return res.json();
+    }
+
+    async function loadChores() {
+      try {
+        chores = await apiFetch('/api/chores');
+      } catch {
+        chores = [];
+        document.getElementById('chore-list').innerHTML =
+          '<div class="empty-state">API unavailable — chores will appear when connected</div>';
+      }
+      renderChores();
+      renderManage();
+    }
+
+    async function loadData() {
+      try {
+        [chores, users] = await Promise.all([
+          apiFetch('/api/chores'),
+          apiFetch('/api/users'),
+        ]);
+      } catch {
+        chores = [];
+        users  = [];
+        document.getElementById('chore-list').innerHTML =
+          '<div class="empty-state">API unavailable — chores will appear when connected</div>';
+      }
+      renderChores();
+      renderManage();
+    }
+
+    // ── Event delegation ──────────────────────────────────────────────────
+    document.getElementById('chore-list').addEventListener('click', async e => {
+      // Open history drawer
+      const histBtn = e.target.closest('[data-history]');
+      if (histBtn) {
+        openHistory(parseInt(histBtn.dataset.history));
+        return;
+      }
+
+      // Show user picker
+      const completeBtn = e.target.closest('[data-complete]');
+      if (completeBtn) {
+        const id = completeBtn.dataset.complete;
+        document.querySelectorAll('.user-picker.open').forEach(p => p.classList.remove('open'));
+        document.getElementById('picker-' + id).classList.add('open');
+        return;
+      }
+
+      // Confirm completion
+      const confirmBtn = e.target.closest('[data-confirm]');
+      if (confirmBtn) {
+        const id = parseInt(confirmBtn.dataset.confirm);
+        const sel = document.getElementById('user-select-' + id);
+        const userId = parseInt(sel.value);
+        if (!userId) { alert('Please select who completed this chore.'); return; }
+        try {
+          await apiFetch('/api/chores/' + id + '/complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId }),
+          });
+          await loadChores();
+        } catch { alert('Failed to mark complete. Try again.'); }
+      }
+    });
+
+    // Add chore
+    document.getElementById('add-chore-btn').addEventListener('click', async () => {
+      const nameInput = document.querySelector('.add-form input[name="name"]');
+      const freqInput = document.querySelector('.add-form input[name="freq"]');
+      const name = nameInput.value.trim();
+      const freq = parseInt(freqInput.value);
+      if (!name || !freq || freq < 1) { alert('Enter a chore name and frequency.'); return; }
+      try {
+        await apiFetch('/api/chores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, frequency_days: freq }),
+        });
+        nameInput.value = '';
+        freqInput.value = '';
+        await loadChores();
+      } catch { alert('Failed to add chore. Try again.'); }
+    });
+
+    // Manage section toggle
+    document.getElementById('manage-toggle').addEventListener('click', () => {
+      document.getElementById('manage-section').classList.toggle('open');
+    });
+
+    // Manage chores & users delegation
+    document.getElementById('manage-section').addEventListener('click', async e => {
+      // Edit chore
+      const editBtn = e.target.closest('[data-edit-chore]');
+      if (editBtn) {
+        const id   = parseInt(editBtn.dataset.editChore);
+        const name = prompt('Chore name:', editBtn.dataset.name);
+        if (name === null) return;
+        const freqStr = prompt('Frequency (days):', editBtn.dataset.freq);
+        if (freqStr === null) return;
+        const freq = parseInt(freqStr);
+        if (!name.trim() || !freq || freq < 1) { alert('Invalid input.'); return; }
+        try {
+          await apiFetch('/api/chores/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name.trim(), frequency_days: freq }),
+          });
+          await loadChores();
+        } catch { alert('Failed to update chore.'); }
+        return;
+      }
+
+      // Delete chore
+      const deleteBtn = e.target.closest('[data-delete-chore]');
+      if (deleteBtn) {
+        const id = parseInt(deleteBtn.dataset.deleteChore);
+        const chore = chores.find(c => c.id === id);
+        if (!confirm('Delete "' + (chore ? chore.name : 'this chore') + '"? This cannot be undone.')) return;
+        try {
+          await apiFetch('/api/chores/' + id, { method: 'DELETE' });
+          await loadChores();
+        } catch { alert('Failed to delete chore.'); }
+        return;
+      }
+
+      // Deactivate user
+      const deactivateBtn = e.target.closest('[data-deactivate-user]');
+      if (deactivateBtn) {
+        const id   = parseInt(deactivateBtn.dataset.deactivateUser);
+        const user = users.find(u => u.id === id);
+        if (!confirm('Remove "' + (user ? user.name : 'this user') + '"? They will no longer appear in dropdowns (history is preserved).')) return;
+        try {
+          await apiFetch('/api/users/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ active: false }),
+          });
+          await loadData();
+        } catch { alert('Failed to remove user.'); }
+        return;
+      }
+    });
+
+    // Add user
+    document.getElementById('add-user-btn').addEventListener('click', async () => {
+      const input = document.getElementById('new-user-input');
+      const name  = input.value.trim();
+      if (!name) { alert('Enter a user name.'); return; }
+      try {
+        await apiFetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name }),
+        });
+        input.value = '';
+        await loadData();
+      } catch { alert('Failed to add user.'); }
+    });
+
+    // ── History drawer ────────────────────────────────────────────────────
+    async function openHistory(choreId) {
+      const chore = chores.find(c => c.id === choreId);
+      document.getElementById('drawer-title').textContent = chore ? chore.name : 'History';
+      document.getElementById('drawer-body').innerHTML = '<div class="empty-state">Loading…</div>';
+      document.getElementById('drawer-backdrop').classList.add('open');
+      document.getElementById('drawer').classList.add('open');
+
+      try {
+        const rows = await apiFetch('/api/chores/' + choreId + '/history');
+        if (!rows.length) {
+          document.getElementById('drawer-body').innerHTML = '<div class="empty-state">No completions yet</div>';
+          return;
+        }
+        document.getElementById('drawer-body').innerHTML = rows.map(r => {
+          const d = new Date(r.completed_at);
+          const dateStr = MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+          return `<div class="history-row">
+            <span class="history-user">${escHtml(r.user_name)}</span>
+            <span class="history-date">${dateStr}</span>
+          </div>`;
+        }).join('');
+      } catch {
+        document.getElementById('drawer-body').innerHTML = '<div class="empty-state">Failed to load history</div>';
+      }
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawer-backdrop').classList.remove('open');
+      document.getElementById('drawer').classList.remove('open');
+    }
+
+    document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+    document.getElementById('drawer-backdrop').addEventListener('click', closeDrawer);
+
+    // ── Init ──────────────────────────────────────────────────────────────
+    loadData();
+    setInterval(loadChores, 60000);
+  </script>
+</body>
+</html>
