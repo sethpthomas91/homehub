@@ -523,6 +523,7 @@
         return;
       }
 
+      const userOpts = userOptions();
       list.innerHTML = chores.map(c => `
         <div class="chore-card" data-id="${c.id}">
           <div class="status-dot status-dot--${c.status}"></div>
@@ -534,7 +535,7 @@
           <div class="chore-actions">
             <button class="btn btn--primary" data-complete="${c.id}">Mark Complete</button>
             <div class="user-picker" id="picker-${c.id}">
-              <select id="user-select-${c.id}">${userOptions()}</select>
+              <select id="user-select-${c.id}">${userOpts}</select>
               <button class="btn btn--primary" data-confirm="${c.id}">Done</button>
             </div>
           </div>
@@ -587,6 +588,18 @@
       return res.json();
     }
 
+    async function loadChores() {
+      try {
+        chores = await apiFetch('/api/chores');
+      } catch {
+        chores = [];
+        document.getElementById('chore-list').innerHTML =
+          '<div class="empty-state">API unavailable — chores will appear when connected</div>';
+      }
+      renderChores();
+      renderManage();
+    }
+
     async function loadData() {
       try {
         [chores, users] = await Promise.all([
@@ -634,7 +647,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: userId }),
           });
-          await loadData();
+          await loadChores();
         } catch { alert('Failed to mark complete. Try again.'); }
       }
     });
@@ -654,7 +667,7 @@
         });
         nameInput.value = '';
         freqInput.value = '';
-        await loadData();
+        await loadChores();
       } catch { alert('Failed to add chore. Try again.'); }
     });
 
@@ -681,7 +694,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: name.trim(), frequency_days: freq }),
           });
-          await loadData();
+          await loadChores();
         } catch { alert('Failed to update chore.'); }
         return;
       }
@@ -694,7 +707,7 @@
         if (!confirm('Delete "' + (chore ? chore.name : 'this chore') + '"? This cannot be undone.')) return;
         try {
           await apiFetch('/api/chores/' + id, { method: 'DELETE' });
-          await loadData();
+          await loadChores();
         } catch { alert('Failed to delete chore.'); }
         return;
       }
@@ -770,7 +783,7 @@
 
     // ── Init ──────────────────────────────────────────────────────────────
     loadData();
-    setInterval(loadData, 60000);
+    setInterval(loadChores, 60000);
   </script>
 </body>
 </html>

@@ -62,15 +62,6 @@ def add_cors(response):
     return response
 
 
-@app.route("/api/chores", methods=["OPTIONS"])
-@app.route("/api/chores/<int:chore_id>", methods=["OPTIONS"])
-@app.route("/api/chores/<int:chore_id>/complete", methods=["OPTIONS"])
-@app.route("/api/chores/<int:chore_id>/history", methods=["OPTIONS"])
-@app.route("/api/users", methods=["OPTIONS"])
-@app.route("/api/users/<int:user_id>", methods=["OPTIONS"])
-def options_handler(**kwargs):
-    return "", 204
-
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -125,12 +116,29 @@ def _get_last_completion(db, chore_id):
 @app.get("/api/chores")
 def list_chores():
     db = get_db()
-    chores = db.execute("SELECT * FROM chores ORDER BY id").fetchall()
+    rows = db.execute("""
+        SELECT c.*,
+               last_comp.completed_at AS last_completed_at,
+               last_comp.user_name    AS last_user_name
+        FROM chores c
+        LEFT JOIN (
+            SELECT comp.chore_id,
+                   comp.completed_at,
+                   u.name AS user_name,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY comp.chore_id
+                       ORDER BY comp.completed_at DESC
+                   ) AS rn
+            FROM completions comp
+            JOIN users u ON u.id = comp.user_id
+        ) last_comp ON last_comp.chore_id = c.id AND last_comp.rn = 1
+        ORDER BY c.id
+    """).fetchall()
     result = []
-    for chore in chores:
-        last = _get_last_completion(db, chore["id"])
-        result.append(_serialize_chore(chore, last))
-    # Sort: danger → warning → normal, then by days_remaining ascending
+    for row in rows:
+        last = {"completed_at": row["last_completed_at"], "user_name": row["last_user_name"]} \
+               if row["last_completed_at"] else None
+        result.append(_serialize_chore(row, last))
     order = {"danger": 0, "warning": 1, "normal": 2}
     result.sort(key=lambda c: (order[c["status"]], c["days_remaining"]))
     return jsonify(result)

@@ -301,6 +301,10 @@
       }
     }
 
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
     function choresDaysLabel(c) {
       if (c.days_remaining > 0)  return 'in ' + c.days_remaining + 'd';
       if (c.days_remaining === 0) return 'today';
@@ -320,7 +324,7 @@
           rows.innerHTML = top.map(c =>
             '<div class="chores-row">' +
               '<div class="chores-dot chores-dot--' + c.status + '"></div>' +
-              '<span class="chores-name">' + c.name.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>' +
+              '<span class="chores-name">' + escHtml(c.name) + '</span>' +
               '<span class="chores-days chores-days--' + c.status + '">' + choresDaysLabel(c) + '</span>' +
             '</div>'
           ).join('');
