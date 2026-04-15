@@ -1,6 +1,6 @@
 
 # HomeHub Project — Master Document
-> Last updated: 2026-04-08 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer), `fetch_weather.sh` (Pi systemd timer, every 15 min), `fetch_sensors.sh` (Pi systemd timer, every 60s), `sensors_status.sh` (Mac → Pi InfluxDB inspector)
+> Last updated: 2026-04-14 | Status: **Active — Phase 1** | Scripts: `preview.py` (local dev), `deploy.sh` (Pi deploy), `system_stats.sh` (Pi systemd timer), `fetch_weather.sh` (Pi systemd timer, every 15 min), `fetch_sensors.sh` (Pi systemd timer, every 60s), `sensors_status.sh` (Mac → Pi InfluxDB inspector)
 > Hardware: 3× ESP32 + DHT22 active (Office, Living Room, Master Bedroom) | Repo: GitHub Private
 
 ---
@@ -119,6 +119,7 @@ These are non-negotiable constraints that apply to every phase and every compone
 | ✅ Add Pi system stats (CPU/RAM/temp/uptime) — shell script + systemd timer | Dev | `system_stats.sh` writes `/api/system.json` every 30s; dashboard polls it; run `setup_system_stats.sh` on Pi after first deploy |
 | ✅ Build sensor dashboard and HA REST adapter | Dev | `fetch_sensors.sh` + `house.html` live fetch (B-1) |
 | ✅ Chores tracker + full containerization | Dev | Flask API + SQLite (`backend/`); Docker Compose stack (nginx + api); `chores.html` full page + summary card on home page; `setup_chores.sh` one-time Pi setup; `docs/chores-spec.md` |
+| ✅ HTTPS with self-signed cert | Dev | Nginx serves 443 ssl; HTTP 80 redirects to HTTPS; cert generated on Pi with `openssl`; SAN includes `DNS:homehub.local` |
 | Add MQTT broker (Mosquitto) to Pi | Client | Enables future Zigbee devices |
 
 **Phase 1 exit criteria:** At least 3 real sensors reporting live to the dashboard. History tab logging real data to InfluxDB.
@@ -235,7 +236,7 @@ These are non-negotiable constraints that apply to every phase and every compone
 ## Reference Links
 
 - ESPHome docs: https://esphome.io
-- Home Assistant: http://homehub.local:8123
+- Home Assistant: http://homehub.local:8123 (HA runs on its own port, not through nginx)
 - Sensor build guide: `docs/sensor-guide.md`
 - Dashboard: `home-hub.html`
 - InfluxDB: https://docs.influxdata.com/influxdb/v2/
