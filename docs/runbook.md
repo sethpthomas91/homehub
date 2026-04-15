@@ -6,7 +6,7 @@ Reference for the three scenarios you'll actually encounter.
 
 ## 1. After a normal shutdown / restart
 
-Power the Pi on and wait ~30 seconds. Then open `http://homehub.local` — done.
+Power the Pi on and wait ~30 seconds. Then open `https://homehub.local` — done.
 
 **Nothing else needed.** Docker Compose and the systemd timers all auto-start at boot.
 
@@ -51,6 +51,18 @@ sudo usermod -aG docker sethpthomas91
 ssh-copy-id sethpthomas91@homehub.local
 ```
 
+### Generate the self-signed TLS certificate (one-time, on the Pi)
+```bash
+ssh sethpthomas91@homehub.local
+sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+  -keyout /etc/ssl/private/homehub.key \
+  -out /etc/ssl/certs/homehub.crt \
+  -subj "/CN=homehub.local" \
+  -addext "subjectAltName=DNS:homehub.local"
+```
+
+The cert is valid for 10 years. Browsers will show a "not trusted" warning (expected for self-signed) — click through or add the cert to your OS trust store to suppress it.
+
 ### Deploy and configure
 ```bash
 # From dev machine:
@@ -79,11 +91,11 @@ cat /var/www/homehub/api/system.json
 cat /var/www/homehub/api/sensors.json
 
 # Chores API responding
-curl http://localhost/api/chores
-curl http://localhost/api/users
+curl -k https://localhost/api/chores
+curl -k https://localhost/api/users
 ```
 
-Then open `http://homehub.local` and confirm the dashboard loads with live sensor, weather, and system data. Open `/chores.html` to confirm the chores API is reachable.
+Then open `https://homehub.local` and confirm the dashboard loads with live sensor, weather, and system data. Open `/chores.html` to confirm the chores API is reachable. Browsers will show a self-signed cert warning — proceed past it or trust the cert.
 
 ---
 
@@ -93,17 +105,17 @@ After fresh Pi setup, add your household members and first chores:
 
 ```bash
 # Add users
-curl -X POST http://homehub.local/api/users \
+curl -k -X POST https://homehub.local/api/users \
   -H 'Content-Type: application/json' -d '{"name":"Seth"}'
-curl -X POST http://homehub.local/api/users \
+curl -k -X POST https://homehub.local/api/users \
   -H 'Content-Type: application/json' -d '{"name":"Elise"}'
 
 # Add chores (name + how many days between completions)
-curl -X POST http://homehub.local/api/chores \
+curl -k -X POST https://homehub.local/api/chores \
   -H 'Content-Type: application/json' -d '{"name":"Change cat water filter","frequency_days":30}'
 ```
 
-Or just use the UI at `http://homehub.local/chores.html` — the Add Chore form and Manage section handle everything.
+Or just use the UI at `https://homehub.local/chores.html` — the Add Chore form and Manage section handle everything.
 
 ---
 
